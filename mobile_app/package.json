@@ -1,0 +1,10 @@
+{
+  "name": "deposit-radar-mobile-app-skeleton",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Deposit Radar 모바일 앱 구조만 정의한 스켈레톤 프로젝트",
+  "scripts": {
+    "start": "echo 'Expo/React Native 설정은 추후 추가 예정'"
+  }
+}
+
