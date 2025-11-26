@@ -8,6 +8,7 @@ venv/
 .mypy_cache/
 .pytest_cache/
 *.log
+.python-version
 
 # Virtualenv
 env/
