@@ -4,8 +4,8 @@
 """
 
 from pydantic import BaseModel
-from app.models.registry import RegistrySnapshot
-from app.models.contract import ContractInfo
+from backend.app.models.registry import RegistrySnapshot
+from backend.app.models.contract import ContractInfo
 
 class RiskInput(BaseModel):
     contract: ContractInfo
