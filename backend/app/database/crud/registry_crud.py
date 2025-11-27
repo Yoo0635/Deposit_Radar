@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from models.registry_orm import RegistrySnapshotORM
-from schema.registry_schema import RegistryCreate
+from backend.app.models.registry_orm import RegistrySnapshotORM
+from backend.app.schema.registry_schema import RegistryCreate
 
 
 def create_registry_snapshot(db: Session, dto: RegistryCreate):

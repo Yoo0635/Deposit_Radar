@@ -1,9 +1,9 @@
 # backend/app/services/registry_service.py
 
 from sqlalchemy.orm import Session
-from schema.registry_schema import RegistryCreate, RegistryResponse
-from models.registry_orm import RegistrySnapshotORM
-from database.crud.registry_crud import create_registry_snapshot
+from backend.app.schema.registry_schema import RegistryCreate, RegistryResponse
+from backend.app.models.registry_orm import RegistrySnapshotORM
+from backend.app.database.crud.registry_crud import create_registry_snapshot
 
 
 def create_registry_snapshot_service(db: Session, dto: RegistryCreate) -> RegistryResponse:

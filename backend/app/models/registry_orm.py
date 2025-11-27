@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, JSON
-from app.database.config import Base
+from backend.app.database.config import Base
 
 class RegistrySnapshotORM(Base):
     __tablename__ = "registry_snapshot"

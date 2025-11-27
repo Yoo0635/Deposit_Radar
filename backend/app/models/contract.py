@@ -1,8 +1,10 @@
 from pydantic import BaseModel
+from datetime import date
 from typing import Optional
 
 class ContractInfo(BaseModel):
-    address: str              # 사용자가 입력한 주소
-    deposit: int              # 보증금 (숫자)
-    move_in_date: Optional[str] = None   # 전입일 (YYYY-MM-DD 또는 YYYYMMDD)
-    fixed_date: Optional[str] = None     # 확정일자 (YYYY-MM-DD 또는 YYYYMMDD)
+    nickname: Optional[str] = None
+    address: str
+    deposit: int
+    move_in_date: Optional[date] = None
+    fixed_date: Optional[date] = None

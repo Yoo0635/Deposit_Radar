@@ -3,9 +3,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from database.repository import get_db
-from schema.registry_schema import RegistryCreate, RegistryResponse
-from services.registry_service import create_registry_snapshot_service
+from backend.app.database.database import get_db
+from backend.app.schema.registry_schema import RegistryCreate, RegistryResponse
+from backend.app.services.registry_service import create_registry_snapshot_service
 
 router = APIRouter()
 
