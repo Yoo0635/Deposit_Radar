@@ -20,3 +20,6 @@ def create_contract(db: Session, dto: ContractCreate):
 
 def get_contract(db: Session, contract_id: int):
     return db.query(ContractORM).filter(ContractORM.id == contract_id).first()
+
+def get_contracts(db: Session):
+    return db.query(ContractORM).all()

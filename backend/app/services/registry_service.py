@@ -2,7 +2,7 @@
 
 from sqlalchemy.orm import Session
 from backend.app.schema.registry_schema import RegistryCreate, RegistryResponse
-from backend.app.models.registry_orm import RegistrySnapshotORM
+from backend.app.models.registry_snapshot_orm import RegistrySnapshotORM
 from backend.app.database.crud.registry_crud import create_registry_snapshot
 
 
