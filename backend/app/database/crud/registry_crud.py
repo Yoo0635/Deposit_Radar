@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from backend.app.models.registry_orm import RegistrySnapshotORM
+from backend.app.models.registry_snapshot_orm import RegistrySnapshotORM
 from backend.app.schema.registry_schema import RegistryCreate
 
 
