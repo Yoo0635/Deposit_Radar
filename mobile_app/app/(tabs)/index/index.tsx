@@ -4,27 +4,20 @@ import { Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import React, { useState } from "react";
 import {
-  Animated,
-  LayoutAnimation,
+  Alert,
   RefreshControl,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  UIManager,
   View,
 } from "react-native";
 import { Colors, globalStyles } from "../../../constants/styles";
 import { useProperties } from "../../../contexts/PropertyContext";
 import { styles } from "./indexStyles";
 
-// Android에서 LayoutAnimation 활성화
-if (UIManager.setLayoutAnimationEnabledExperimental) {
-  UIManager.setLayoutAnimationEnabledExperimental(true);
-}
-
 export default function MainDashboardScreen() {
-  const { properties, updateProperty } = useProperties();
+  const { properties, updateProperty, deleteProperty } = useProperties();
   const [refreshing, setRefreshing] = useState(false);
   const [editingProperty, setEditingProperty] = useState<number | null>(null);
   const [nicknameInput, setNicknameInput] = useState("");
@@ -69,22 +62,42 @@ export default function MainDashboardScreen() {
     setEditingProperty(null);
     setNicknameInput("");
   };
-
   const handleToggleExpand = (propertyId: number) => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setExpandedProperty(expandedProperty === propertyId ? null : propertyId);
+  };
+
+  const handleDeleteProperty = (property: any) => {
+    Alert.alert(
+      "주택 삭제",
+      `"${property.nickname || property.address}" 주택을 삭제하시겠습니까?`,
+      [
+        {
+          text: "취소",
+          style: "cancel",
+        },
+        {
+          text: "삭제",
+          style: "destructive",
+          onPress: () => {
+            deleteProperty(property.id);
+            // 확장된 상태면 닫기
+            if (expandedProperty === property.id) {
+              setExpandedProperty(null);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const renderPropertyCard = (property: any) => {
     const isExpanded = expandedProperty === property.id;
+    const hasNickname = property.nickname && property.nickname.trim() !== "";
 
     return (
       <View key={property.id} style={styles.propertyCardWrapper}>
-        <TouchableOpacity
-          style={styles.propertyCard}
-          onPress={() => handleToggleExpand(property.id)}
-          activeOpacity={0.7}
-        >
+        {/* 첫 번째 카드: 주소 정보 */}
+        <View style={styles.addressCard}>
           {editingProperty === property.id ? (
             <View style={styles.nicknameEditContainer}>
               <TextInput
@@ -121,123 +134,97 @@ export default function MainDashboardScreen() {
               </View>
             </View>
           ) : (
-            <View style={styles.cardContent}>
-              <View style={styles.cardMainInfo}>
-                <View style={styles.nicknameRow}>
-                  <Ionicons
-                    name="home"
-                    size={22}
-                    color="#008080"
-                    style={styles.homeIcon}
-                  />
-                  <View style={styles.nameContainer}>
-                    <Text style={styles.nicknameText} numberOfLines={1}>
-                      {property.nickname || "이름 없음"}
-                    </Text>
-                    {property.nickname && (
-                      <Text style={styles.addressText} numberOfLines={1}>
-                        {property.address}
-                      </Text>
-                    )}
-                    {!property.nickname && (
-                      <Text style={styles.addressText} numberOfLines={1}>
-                        {property.address}
-                      </Text>
-                    )}
-                  </View>
-                </View>
-                <TouchableOpacity
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    handleEditNickname(property);
-                  }}
-                  style={styles.editButton}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                  <Ionicons name="pencil" size={16} color="#008080" />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.cardFooter}>
-                <TouchableOpacity
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    handleToggleExpand(property.id);
-                  }}
-                  style={styles.expandButton}
-                >
-                  <Text style={styles.expandButtonText}>
-                    {isExpanded ? "접기" : "더보기"}
+            <View style={styles.addressCardContent}>
+              <View style={styles.addressCardHeader}>
+                <View style={styles.addressTitleContainer}>
+                  <Text
+                    style={
+                      hasNickname
+                        ? styles.addressCardTitle
+                        : styles.addressCardTitlePlaceholder
+                    }
+                  >
+                    {hasNickname ? property.nickname : "닉네임이 없습니다"}
                   </Text>
-                  <Ionicons
-                    name={isExpanded ? "chevron-up" : "chevron-down"}
-                    size={20}
-                    color="#008080"
-                  />
-                </TouchableOpacity>
+                </View>
+                <View style={styles.headerButtons}>
+                  <TouchableOpacity
+                    onPress={() => handleEditNickname(property)}
+                    style={styles.editButton}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <Ionicons name="pencil" size={16} color="#008080" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => handleDeleteProperty(property)}
+                    style={styles.deleteButton}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <Ionicons name="trash-outline" size={16} color="#F44336" />
+                  </TouchableOpacity>
+                </View>
               </View>
+              <View style={styles.addressDetailRow}>
+                <Ionicons name="location" size={20} color="#008080" />
+                <View style={styles.addressDetailTextContainer}>
+                  <Text style={styles.addressDetailLabel}>상세주소</Text>
+                  <Text style={styles.addressDetailValue}>
+                    {property.address || "-"}
+                  </Text>
+                </View>
+              </View>
+              <TouchableOpacity
+                onPress={() => handleToggleExpand(property.id)}
+                style={styles.moreButton}
+              >
+                <Text style={styles.moreButtonText}>
+                  {isExpanded ? "접기" : "더보기"}
+                </Text>
+                <Ionicons
+                  name={isExpanded ? "chevron-up" : "chevron-down"}
+                  size={20}
+                  color="#008080"
+                />
+              </TouchableOpacity>
             </View>
           )}
-        </TouchableOpacity>
+        </View>
 
-        {/* 아코디언 상세 정보 */}
+        {/* 두 번째 카드: 보증금 및 날짜 정보 (더보기 클릭 시 표시) */}
         {isExpanded && (
-          <Animated.View style={styles.detailContainer}>
-            <View style={styles.detailContent}>
-              <View style={styles.detailSection}>
-                <View style={styles.detailItem}>
-                  <View style={styles.detailIconContainer}>
-                    <Ionicons name="location" size={18} color="#008080" />
-                  </View>
-                  <View style={styles.detailTextContainer}>
-                    <Text style={styles.accordionDetailLabel}>상세주소</Text>
-                    <Text style={styles.accordionDetailValue}>
-                      {property.address}
-                    </Text>
-                  </View>
+          <View style={styles.infoCard}>
+            <View style={styles.depositRow}>
+              <Ionicons name="cash" size={24} color="#008080" />
+              <View style={styles.depositTextContainer}>
+                <Text style={styles.depositLabel}>보증금</Text>
+                <Text style={styles.depositValue}>
+                  {property.deposit?.toLocaleString() || "-"}원
+                </Text>
+              </View>
+            </View>
+            <View style={styles.sectionDivider} />
+            <View style={styles.dateRow}>
+              <View style={styles.dateColumn}>
+                <Ionicons name="calendar" size={20} color="#008080" />
+                <View style={styles.dateTextContainer}>
+                  <Text style={styles.dateLabel}>전입일</Text>
+                  <Text style={styles.dateValue}>
+                    {property.move_in_date || "-"}
+                  </Text>
                 </View>
-
-                <View style={styles.detailItem}>
-                  <View style={styles.detailIconContainer}>
-                    <Ionicons name="cash" size={18} color="#4CAF50" />
-                  </View>
-                  <View style={styles.detailTextContainer}>
-                    <Text style={styles.accordionDetailLabel}>보증금</Text>
-                    <Text style={styles.accordionDetailValue}>
-                      {property.deposit?.toLocaleString() || "-"}원
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={styles.detailItem}>
-                  <View style={styles.detailIconContainer}>
-                    <Ionicons name="calendar" size={18} color="#FF9800" />
-                  </View>
-                  <View style={styles.detailTextContainer}>
-                    <Text style={styles.accordionDetailLabel}>전입일</Text>
-                    <Text style={styles.accordionDetailValue}>
-                      {property.move_in_date || "-"}
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={styles.detailItem}>
-                  <View style={styles.detailIconContainer}>
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={18}
-                      color="#2196F3"
-                    />
-                  </View>
-                  <View style={styles.detailTextContainer}>
-                    <Text style={styles.accordionDetailLabel}>확정일자</Text>
-                    <Text style={styles.accordionDetailValue}>
-                      {property.confirmation_date || "-"}
-                    </Text>
-                  </View>
+              </View>
+              <View style={styles.dateDivider} />
+              <View style={styles.dateColumn}>
+                <Ionicons name="checkmark-circle" size={20} color="#008080" />
+                <View style={styles.dateTextContainer}>
+                  <Text style={styles.dateLabel}>확정일자</Text>
+                  <Text style={styles.dateValue}>
+                    {property.confirmation_date || "-"}
+                  </Text>
                 </View>
               </View>
             </View>
-          </Animated.View>
+          </View>
         )}
       </View>
     );
