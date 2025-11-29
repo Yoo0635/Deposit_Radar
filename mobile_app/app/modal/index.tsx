@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { globalStyles } from "../../constants/styles";
+import { Colors, globalStyles } from "../../constants/styles";
 import { useProperties } from "../../contexts/PropertyContext";
 import { styles } from "./modalStyles";
 
@@ -103,6 +103,7 @@ export default function AddPropertyModal() {
         <TextInput
           style={styles.textInput}
           placeholder="정확한 주소 (예: 서울시 강남구 테헤란로 123-45)"
+          placeholderTextColor={Colors.textSecondary}
           value={address}
           onChangeText={setAddress}
         />
@@ -111,6 +112,7 @@ export default function AddPropertyModal() {
         <TextInput
           style={styles.textInput}
           placeholder="예: 50000000 (숫자만 입력)"
+          placeholderTextColor={Colors.textSecondary}
           keyboardType="numeric"
           value={deposit}
           onChangeText={setDeposit}
@@ -120,6 +122,7 @@ export default function AddPropertyModal() {
         <TextInput
           style={styles.textInput}
           placeholder="예: 20250115 또는 2025-01-15"
+          placeholderTextColor={Colors.textSecondary}
           value={moveInDate}
           onChangeText={(text) => setMoveInDate(formatDateInput(text))}
           keyboardType="numeric"
@@ -130,6 +133,7 @@ export default function AddPropertyModal() {
         <TextInput
           style={styles.textInput}
           placeholder="예: 20250115 또는 2025-01-15"
+          placeholderTextColor={Colors.textSecondary}
           value={confirmDate}
           onChangeText={(text) => setConfirmDate(formatDateInput(text))}
           keyboardType="numeric"

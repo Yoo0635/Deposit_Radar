@@ -14,7 +14,7 @@ export const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     paddingHorizontal: Spacing.xLarge,
-    paddingVertical: Spacing.large,
+    paddingVertical: Spacing.xLarge,
   },
   header: {
     alignItems: "center",

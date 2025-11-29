@@ -20,6 +20,7 @@ import {
 } from "react-native";
 import { Colors } from "../../../constants/styles";
 import { useAuth } from "../../../context/AuthContext";
+import { useNotification } from "../../../contexts/NotificationContext";
 import { styles } from "./loginStyles";
 
 // --- [타입 정의] 커스텀 입력창 ---
@@ -98,9 +99,11 @@ const CustomTextInput = ({
 export default function LoginScreen() {
   const router = useRouter();
   const { login } = useAuth();
+  const { pendingNotification } = useNotification();
   const [id, setId] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberLogin, setRememberLogin] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(0));
   const [scaleAnim] = useState(new Animated.Value(0.9));
   const scrollViewRef = React.useRef<ScrollView>(null);
@@ -124,7 +127,14 @@ export default function LoginScreen() {
 
   const handleLogin = () => {
     if (id && password) {
-      login();
+      // 자동 로그인 체크박스 상태와 함께 로그인
+      login(rememberLogin);
+      // 알림 데이터가 있으면 로그인 후 분석 화면으로 이동
+      if (pendingNotification) {
+        setTimeout(() => {
+          router.push("/(tabs)/analysis" as any);
+        }, 100);
+      }
     } else {
       Alert.alert("로그인 오류", "아이디와 비밀번호를 입력해주세요.");
     }
@@ -221,6 +231,20 @@ export default function LoginScreen() {
                 },
               ]}
             >
+              {/* 자동 로그인 체크박스 */}
+              <TouchableOpacity
+                style={styles.autoLoginContainer}
+                onPress={() => setRememberLogin(!rememberLogin)}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name={rememberLogin ? "checkbox" : "checkbox-outline"}
+                  size={24}
+                  color={rememberLogin ? tealColor : Colors.textSecondary}
+                />
+                <Text style={styles.autoLoginText}>자동 로그인</Text>
+              </TouchableOpacity>
+
               <TouchableOpacity
                 style={styles.loginButton}
                 onPress={handleLogin}

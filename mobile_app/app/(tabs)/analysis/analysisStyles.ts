@@ -12,6 +12,7 @@ import {
 export const styles = StyleSheet.create({
   scrollContent: {
     padding: Spacing.medium,
+    paddingTop: 0,
     paddingBottom: Spacing.xLarge + 25,
   },
   pendingCard: {
@@ -34,9 +35,6 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.small,
-  },
-  deleteButton: {
-    padding: Spacing.tiny,
   },
   pendingTitle: {
     ...Typography.body1,
@@ -77,13 +75,18 @@ export const styles = StyleSheet.create({
     marginLeft: Spacing.small,
   },
   historySection: {
-    marginTop: Spacing.medium,
+    marginTop: 0,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: Spacing.medium,
   },
   sectionTitle: {
     ...Typography.h3,
     fontSize: 20,
     fontWeight: "700",
-    marginBottom: Spacing.medium,
     color: Colors.textPrimary,
   },
   emptyHistory: {
@@ -97,8 +100,14 @@ export const styles = StyleSheet.create({
     marginTop: Spacing.medium,
   },
   historyCard: {
-    ...globalStyles.card,
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: Spacing.medium,
+  },
+  historyCardContent: {
+    ...globalStyles.card,
+    flex: 1,
+    marginRight: Spacing.small,
   },
   historyHeader: {
     flexDirection: "row",
@@ -124,17 +133,15 @@ export const styles = StyleSheet.create({
   historyFooter: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     marginTop: Spacing.small,
     paddingTop: Spacing.small,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
   },
-  historyLtv: {
-    ...Typography.body2,
-    fontWeight: "600",
-    color: Colors.textSecondary,
-    fontSize: 14,
+  deleteButton: {
+    padding: Spacing.small,
+    justifyContent: "center",
+    alignItems: "center",
   },
   // 모달 스타일
   modalOverlay: {
@@ -163,6 +170,22 @@ export const styles = StyleSheet.create({
   },
   modalBody: {
     maxHeight: 300,
+  },
+  notificationMessage: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#E0F7F7",
+    padding: Spacing.medium,
+    borderRadius: 12,
+    marginBottom: Spacing.medium,
+    gap: Spacing.small,
+  },
+  notificationText: {
+    ...Typography.body1,
+    fontSize: 14,
+    color: Colors.textPrimary,
+    flex: 1,
+    fontWeight: "500",
   },
   guideSection: {
     marginBottom: Spacing.medium,
@@ -236,9 +259,24 @@ export const styles = StyleSheet.create({
   },
   pdfPreviewContent: {
     flex: 1,
+    backgroundColor: "#ffffff",
     justifyContent: "center",
     alignItems: "center",
-    padding: Spacing.large,
+  },
+  pdfWebView: {
+    flex: 1,
+    backgroundColor: "#ffffff",
+  },
+  pdfLoadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#ffffff",
+    zIndex: 1,
   },
   pdfInfoContainer: {
     flex: 1,
@@ -264,6 +302,7 @@ export const styles = StyleSheet.create({
   pdfPlaceholder: {
     alignItems: "center",
     justifyContent: "center",
+    width: "100%",
   },
   pdfPlaceholderText: {
     ...Typography.h3,
