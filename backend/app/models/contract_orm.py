@@ -1,5 +1,6 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, BigInteger, Date, DateTime
+from sqlalchemy.orm import relationship
 from backend.app.database.config import Base
 
 class ContractORM(Base):
@@ -12,3 +13,6 @@ class ContractORM(Base):
     move_in_date = Column(Date, nullable=False)
     confirmation_date = Column(Date, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    # 🔥 반드시 필요!
+    snapshots = relationship("RegistrySnapshotORM", back_populates="contract")
