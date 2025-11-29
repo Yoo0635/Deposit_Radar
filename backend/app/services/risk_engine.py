@@ -1,22 +1,19 @@
 # backend/app/services/risk_engine.py
 
 """
-등기부 diff 결과를 기반으로 위험 이벤트/위험도 수준을 계산하는 엔진.
-
-입력 형식 (diff 예시):
-
-{
-  "gabu": { "added": [], "removed": [], "updated": [] },
-  "eulgu": {
-    "added": [ { ... } ],
-    "removed": [],
-    "updated": [ { "old": {...}, "new": {...} } ]
-  }
-}
+1) diff 기반 위험 탐지 (기존 너 코드 그대로 유지)
+2) LTV + 선후순위(Priority) + diff 이벤트 결합한 최종 Risk Engine 추가
 """
 
 from typing import Dict, Any, List
+from backend.app.services.ltv_service import calculate_ltv, classify_ltv_risk
+from backend.app.services.liens_service import extract_total_liens
+from backend.app.schema.tenant_risk_schema import TenantRiskProfile
 
+
+# ============================
+# 🔷 1. 기존 너의 Risk Engine (diff 기반)
+# ============================
 
 SEIZURE_PURPOSES = [
     "가압류",
@@ -94,4 +91,104 @@ def evaluate_risk(diff: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "level": overall_level,
         "events": events,
+    }
+
+
+# ============================
+# 🔶 2. 확장 Risk Engine (diff + LTV + Priority 결합)
+# ============================
+
+def evaluate_diff_risk(diff: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    diff 기반 위험 이벤트를 정규화하여 확장 엔진에서 사용 가능하게 변환.
+    """
+    base = evaluate_risk(diff)  # 기존 엔진 그대로 활용
+    return {
+        "level": base["level"],
+        "events": base["events"]
+    }
+
+
+def evaluate_priority(tenant: TenantRiskProfile, snapshot: Dict[str, Any]) -> str:
+    """
+    매우 단순한 MVP Priority 계산:
+      - 전입일이 모든 을구 등기 접수일보다 빠르면 선순위(PRIORITY)
+      - 늦으면 후순위(SUBORDINATE)
+    """
+
+    tenant_date = tenant.tenant_move_in_date
+    eulgu_dates = [
+        entry["receipt"]["receipt_date"]
+        for entry in snapshot.get("eulgu", [])
+    ]
+
+    if not eulgu_dates:
+        return "PRIORITY"
+
+    earliest = min(eulgu_dates)
+
+    return "PRIORITY" if tenant_date < earliest else "SUBORDINATE"
+
+
+def evaluate_final_risk(
+    diff: Dict[str, Any],
+    tenant: TenantRiskProfile,
+    snapshot: Dict[str, Any]
+):
+    """
+    최종 위험도 평가:
+     - diff 위험도
+     - LTV 위험도
+     - Priority(선순위/후순위)
+     조합하여 최종 Risk Level 생성
+    """
+
+    # 1) diff risk
+    diff_risk = evaluate_diff_risk(diff)
+    diff_level = diff_risk["level"]
+
+    # 2) 총 담보금액 계산
+    total_liens = extract_total_liens(snapshot.get("eulgu", []))
+
+    # 3) LTV 계산
+    ltv_value = calculate_ltv(
+        deposit_amount=tenant.deposit_amount,
+        total_liens=total_liens,
+        market_price=tenant.market_price
+    )
+    ltv_level = classify_ltv_risk(ltv_value)
+
+    # 4) Priority 계산
+    priority = evaluate_priority(tenant, snapshot)
+
+    # ------------------------
+    # 5) 최종 위험도 결정
+    # ------------------------
+    final_level = "GREEN"
+
+    # 경매 발생 = 무조건 CRITICAL
+    if diff_level == "CRITICAL":
+        final_level = "CRITICAL"
+    else:
+        # diff HIGH
+        if diff_level == "HIGH":
+            final_level = "HIGH"
+
+        # LTV 위험도 반영
+        if ltv_level == "RED":
+            final_level = "CRITICAL"
+        elif ltv_level == "AMBER" and final_level == "GREEN":
+            final_level = "AMBER"
+
+        # 후순위일수록 위험 증가
+        if priority == "SUBORDINATE":
+            if final_level == "GREEN":
+                final_level = "AMBER"
+
+    return {
+        "final_level": final_level,
+        "ltv": ltv_value,
+        "ltv_level": ltv_level,
+        "priority": priority,
+        "diff_risk": diff_risk
     }
