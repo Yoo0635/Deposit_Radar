@@ -3,6 +3,19 @@
 from typing import List, Dict, Any
 
 
+def _extract_field(item: Dict[str, Any], key: str):
+    """
+    중첩된 JSON 구조에서도 안전하게 필드를 추출하는 헬퍼 함수.
+    """
+    # receipt_no / receipt_date → receipt 내부에 있을 가능성이 높음
+    if key in ["receipt_no", "receipt_date"]:
+        receipt = item.get("receipt", {})
+        return receipt.get(key)
+
+    # 기본 키는 그냥 item[key]
+    return item.get(key)
+
+
 def _index_entries(entries: List[Dict[str, Any]], unique_keys: List[str]):
     """
     entries: 갑구/을구 리스트
@@ -11,8 +24,7 @@ def _index_entries(entries: List[Dict[str, Any]], unique_keys: List[str]):
     index = {}
 
     for item in entries:
-        # unique 식별자 생성
-        key = tuple(item[k] for k in unique_keys)
+        key = tuple(_extract_field(item, k) for k in unique_keys)
         index[key] = item
     
     return index
