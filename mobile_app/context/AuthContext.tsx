@@ -1,14 +1,13 @@
 // context/AuthContext.tsx
-
-// 1. useRouter와 useSegments를 import에서 삭제합니다.
+// 인증 상태 관리 Context (백그라운드 상태에서만 사용 - AsyncStorage 제거)
 import React, { createContext, useContext, useState } from "react";
-// import { useRouter, useSegments } from 'expo-router'; // <--- 이 줄 삭제
 
 // AuthContext 생성
 const AuthContext = createContext<{
   isAuthenticated: boolean;
-  login: () => void;
+  login: (rememberLogin?: boolean) => void;
   logout: () => void;
+  isLoading: boolean;
 } | null>(null);
 
 // useAuth 훅 생성
@@ -23,19 +22,22 @@ export function useAuth() {
 // AuthProvider 컴포넌트
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading] = useState(false); // 로딩 체크 불필요
 
-  // 2. 로그인/로그아웃 함수
-  const login = () => {
+  // 로그인 함수
+  const login = (rememberLogin: boolean = false) => {
     setIsAuthenticated(true);
   };
 
+  // 로그아웃 함수
   const logout = () => {
     setIsAuthenticated(false);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
 }
+

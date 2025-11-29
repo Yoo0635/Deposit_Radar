@@ -18,7 +18,7 @@ export const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "flex-start",
     paddingHorizontal: Spacing.xLarge,
-    paddingTop: Platform.OS === "android" ? Spacing.large : Spacing.medium,
+    paddingTop: Platform.OS === "android" ? Spacing.xLarge : Spacing.large,
     paddingBottom: Spacing.xLarge * 2,
   },
   header: {
@@ -67,7 +67,7 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     borderBottomWidth: 2,
     borderBottomColor: Colors.border,
-    marginBottom: Spacing.large,
+    marginBottom: Spacing.small,
   },
   inputIcon: {
     marginRight: Spacing.medium,
@@ -84,7 +84,7 @@ export const styles = StyleSheet.create({
   },
   footer: {
     justifyContent: "flex-start",
-    paddingTop: Spacing.large,
+    paddingTop: Spacing.small,
     paddingBottom: Spacing.medium,
   },
   loginButton: {
@@ -110,6 +110,19 @@ export const styles = StyleSheet.create({
   },
   loginButtonIcon: {
     marginLeft: Spacing.small,
+  },
+  autoLoginContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: Spacing.medium,
+    paddingVertical: Spacing.small,
+  },
+  autoLoginText: {
+    ...Typography.body1,
+    fontSize: 16,
+    color: Colors.textPrimary,
+    marginLeft: Spacing.small,
+    fontWeight: "500",
   },
   footerLinks: {
     flexDirection: "row",

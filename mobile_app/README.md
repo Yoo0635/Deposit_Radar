@@ -51,7 +51,8 @@ Deposit_Radar/
 │   └── AuthContext.tsx          ← 인증 상태 관리 (로그인/로그아웃)
 │
 ├── contexts/                    ← 전역 상태 관리 (Context API)
-│   └── PropertyContext.tsx      ← 주택 목록 상태 관리 (CRUD)
+│   ├── PropertyContext.tsx      ← 주택 목록 상태 관리 (CRUD)
+│   └── NotificationContext.tsx  ← 알림 데이터 상태 관리 (푸시 알림)
 │
 ├── hooks/                       ← 커스텀 React 훅
 │   ├── use-color-scheme.ts      ← 색상 스키마 훅

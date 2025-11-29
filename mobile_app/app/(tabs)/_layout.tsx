@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
 import { Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // 하단 탭바의 아이콘을 설정하는 헬퍼 컴포넌트
 function TabBarIcon(props: {
@@ -14,6 +15,14 @@ function TabBarIcon(props: {
 }
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+  
+  // 하단 제스처 영역(홈 인디케이터)을 피하기 위한 패딩 계산
+  const bottomPadding = Math.max(insets.bottom, Platform.OS === "ios" ? 12 : 10);
+  const tabBarHeight = Platform.OS === "ios" 
+    ? 70 + Math.max(insets.bottom - 12, 0)
+    : 65 + Math.max(insets.bottom - 10, 0);
+  
   return (
     <Tabs
       screenOptions={{
@@ -28,8 +37,8 @@ export default function TabLayout() {
           backgroundColor: "#ffffff",
           borderTopWidth: 0.5,
           borderTopColor: "#e0e0e0",
-          height: Platform.OS === "ios" ? 70 : 65,
-          paddingBottom: Platform.OS === "ios" ? 12 : 10,
+          height: tabBarHeight,
+          paddingBottom: bottomPadding,
           paddingTop: 8,
         },
         headerShown: true,
@@ -50,16 +59,18 @@ export default function TabLayout() {
           ),
           headerStyle: {
             backgroundColor: "#ffffff",
-            elevation: 0,
-            shadowOpacity: 0,
-            borderBottomWidth: 0.5,
-            borderBottomColor: "#e0e0e0",
-            height: Platform.OS === "ios" ? 92 : 52,
+            elevation: 3,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            borderBottomWidth: 0,
+            height: Platform.OS === "ios" ? 180 : 100,
           },
           headerTitleStyle: {
             fontSize: 22,
             fontWeight: "700",
-            marginTop: Platform.OS === "android" ? -20 : -28,
+            marginTop: Platform.OS === "android" ? 10 : 10,
             lineHeight: 28,
             includeFontPadding: false,
           },
@@ -80,16 +91,18 @@ export default function TabLayout() {
           ),
           headerStyle: {
             backgroundColor: "#ffffff",
-            elevation: 0,
-            shadowOpacity: 0,
-            borderBottomWidth: 0.5,
-            borderBottomColor: "#e0e0e0",
-            height: Platform.OS === "ios" ? 92 : 52,
+            elevation: 3,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            borderBottomWidth: 0,
+            height: Platform.OS === "ios" ? 180 : 100,
           },
           headerTitleStyle: {
             fontSize: 22,
             fontWeight: "700",
-            marginTop: Platform.OS === "android" ? -20 : -28,
+            marginTop: Platform.OS === "android" ? 10 : 10,
             lineHeight: 28,
             includeFontPadding: false,
           },
@@ -110,16 +123,18 @@ export default function TabLayout() {
           ),
           headerStyle: {
             backgroundColor: "#ffffff",
-            elevation: 0,
-            shadowOpacity: 0,
-            borderBottomWidth: 0.5,
-            borderBottomColor: "#e0e0e0",
-            height: Platform.OS === "ios" ? 92 : 52,
+            elevation: 3,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            borderBottomWidth: 0,
+            height: Platform.OS === "ios" ? 180 : 100,
           },
           headerTitleStyle: {
             fontSize: 22,
             fontWeight: "700",
-            marginTop: Platform.OS === "android" ? -20 : -28,
+            marginTop: Platform.OS === "android" ? 10 : 10,
             lineHeight: 28,
             includeFontPadding: false,
           },
