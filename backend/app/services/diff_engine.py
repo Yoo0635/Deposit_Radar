@@ -1,35 +1,55 @@
-# backend/app/models/diff.py
-
-from typing import List, Dict, Any
+# backend/app/services/diff_engine.py
 
 """
-등기부 변동 비교 로직
- - 갑구(gabu)
- - 을구(eulgu)
-를 각각 rank 기준으로 매칭하여 변경(diff)을 계산한다.
+등기부 스냅샷 간 비교(diff) 엔진.
+
+입력 형식 (old, new 예시):
+
+{
+  "viewed_at": "2025-01-10",
+  "gabu": [ { ... }, ... ],
+  "eulgu": [ { ... }, ... ]
+}
+
+각 항목은 RegistryEntry 구조(dict)라고 가정한다.
 """
 
-def compare_registry_lists(old_list: List[Dict], new_list: List[Dict]):
-    """두 리스트(갑구/을구)를 비교하여 추가/삭제/변경된 항목을 찾는다."""
+from typing import Dict, List, Tuple, Any
 
-    old_map = {item["rank"]: item for item in old_list}
-    new_map = {item["rank"]: item for item in new_list}
 
-    added, removed, updated = [], [], []
+def _index_entries(entries: List[Dict[str, Any]]) -> Dict[Tuple[int, str], Dict[str, Any]]:
+    """
+    엔트리를 (rank, purpose)를 키로 해서 매핑한다.
+    - 같은 순위/목적이면 같은 등기항목으로 보고 updated 여부를 판단.
+    """
+    index: Dict[Tuple[int, str], Dict[str, Any]] = {}
+    for e in entries:
+        key = (e.get("rank"), e.get("purpose"))
+        index[key] = e
+    return index
 
-    # 추가 & 변경 체크
-    for rank, new_item in new_map.items():
-        if rank not in old_map:
-            added.append(new_item)
+
+def _diff_section(old_list: List[Dict[str, Any]], new_list: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
+    old_index = _index_entries(old_list)
+    new_index = _index_entries(new_list)
+
+    added: List[Dict[str, Any]] = []
+    removed: List[Dict[str, Any]] = []
+    updated: List[Dict[str, Any]] = []
+
+    # removed & updated
+    for key, old_entry in old_index.items():
+        if key not in new_index:
+            removed.append(old_entry)
         else:
-            old_item = old_map[rank]
-            if old_item != new_item:
-                updated.append({"old": old_item, "new": new_item})
+            new_entry = new_index[key]
+            if old_entry != new_entry:
+                updated.append({"old": old_entry, "new": new_entry})
 
-    # 삭제 체크
-    for rank, old_item in old_map.items():
-        if rank not in new_map:
-            removed.append(old_item)
+    # added
+    for key, new_entry in new_index.items():
+        if key not in old_index:
+            added.append(new_entry)
 
     return {
         "added": added,
@@ -38,9 +58,18 @@ def compare_registry_lists(old_list: List[Dict], new_list: List[Dict]):
     }
 
 
-def compare_snapshots(old_snapshot: Dict[str, Any], new_snapshot: Dict[str, Any]):
-    """전체 스냅샷 비교 → gabu/eulgu 포함"""
+def compare_snapshots(old: Dict[str, Any], new: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
+    """
+    두 스냅샷(old, new)을 비교해서 갑구/을구 각각에 대해
+    added / removed / updated 목록을 반환.
+    """
+    old_gabu = old.get("gabu", []) or []
+    new_gabu = new.get("gabu", []) or []
+
+    old_eulgu = old.get("eulgu", []) or []
+    new_eulgu = new.get("eulgu", []) or []
+
     return {
-        "gabu": compare_registry_lists(old_snapshot["gabu"], new_snapshot["gabu"]),
-        "eulgu": compare_registry_lists(old_snapshot["eulgu"], new_snapshot["eulgu"])
+        "gabu": _diff_section(old_gabu, new_gabu),
+        "eulgu": _diff_section(old_eulgu, new_eulgu),
     }
