@@ -20,11 +20,8 @@ numpy==1.26.4
 ############################
 # OCR 엔진
 ############################
-requests
-python-dotenv
-pymupdf
-opencv-python
-numpy
+easyocr==1.7.1
+pytesseract==0.3.10
 
 ############################
 # Diff 엔진
