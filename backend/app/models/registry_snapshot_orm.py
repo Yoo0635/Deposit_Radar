@@ -16,3 +16,9 @@ class RegistrySnapshotORM(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
 
+def gabu_eulgu(self):
+    return {
+        "gabu": self.gabu,
+        "eulgu": self.eulgu
+    }
+

@@ -1,42 +1,31 @@
 from sqlalchemy.orm import Session
 from backend.app.models.registry_snapshot_orm import RegistrySnapshotORM
-from backend.app.schema.registry_snapshot_schema import RegistrySnapshotCreate
 
-def create_snapshot(db: Session, dto: RegistrySnapshotCreate):
-    obj = RegistrySnapshotORM(**dto.model_dump())
+def create_snapshot(db: Session, contract_id: int, viewed_at: str, gabu: list, eulgu: list):
+
+    # 🔥 Pydantic 모델 → dict 변환 (JSONB 저장 위해 필수)
+    gabu_dict = [entry.dict() for entry in gabu]
+    eulgu_dict = [entry.dict() for entry in eulgu]
+
+    obj = RegistrySnapshotORM(
+        contract_id=contract_id,
+        viewed_at=viewed_at,
+        gabu=gabu_dict,
+        eulgu=eulgu_dict
+    )
     db.add(obj)
     db.commit()
     db.refresh(obj)
     return obj
 
-def get_snapshots_by_contract(db: Session, contract_id: int):
+
+def get_snapshot_by_id(db: Session, snapshot_id: int):
+    return db.query(RegistrySnapshotORM).filter(
+        RegistrySnapshotORM.id == snapshot_id
+    ).first()
+
+
+def get_snapshot_by_contract_id(db: Session, contract_id: int):
     return db.query(RegistrySnapshotORM).filter(
         RegistrySnapshotORM.contract_id == contract_id
-    ).all()
-
-def get_last_two_snapshots(db: Session, contract_id: int):
-    snapshots = (
-        db.query(RegistrySnapshotORM)
-          .filter(RegistrySnapshotORM.contract_id == contract_id)
-          .order_by(RegistrySnapshotORM.created_at.desc())
-          .limit(2)
-          .all()
-    )
-
-    if len(snapshots) < 2:
-        return None, None
-
-    # 최신 스냅샷
-    new_snapshot = {
-        "gabu": snapshots[0].gabu,
-        "eulgu": snapshots[0].eulgu,
-    }
-
-    # 그 이전 스냅샷
-    old_snapshot = {
-        "gabu": snapshots[1].gabu,
-        "eulgu": snapshots[1].eulgu,
-    }
-
-    return old_snapshot, new_snapshot
-
+    ).order_by(RegistrySnapshotORM.id.asc()).all()

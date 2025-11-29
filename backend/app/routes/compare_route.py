@@ -1,28 +1,28 @@
-from fastapi import APIRouter, Depends, HTTPException
+# backend/app/routes/compare_route.py
+
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-
 from backend.app.database.database import get_db
-from backend.app.database.crud.registry_snapshot_crud import get_last_two_snapshots
-from backend.app.services.diff_engine import compare_registry_snapshots
 
-router = APIRouter(prefix="/compare", tags=["compare"])
+from backend.app.services.snapshot_service import (
+    compare_latest_snapshots,
+    compare_two_snapshots,
+    compare_live_with_snapshot
+)
 
-@router.get("/{contract_id}")
-def compare_snapshots(contract_id: int, db: Session = Depends(get_db)):
-    """
-    특정 계약의 최신 스냅샷 2개를 비교하여 diff 반환
-    """
-    old_snapshot, new_snapshot = get_last_two_snapshots(db, contract_id)
+router = APIRouter(prefix="/compare", tags=["Compare"])
 
-    if old_snapshot is None or new_snapshot is None:
-        raise HTTPException(
-            status_code=400,
-            detail="스냅샷이 2개 이상 필요합니다. 최소 두 번 이상 열람해야 비교가 가능합니다."
-        )
 
-    diff_result = compare_registry_snapshots(old_snapshot, new_snapshot)
+@router.get("/latest/{contract_id}")
+def compare_latest(contract_id: int, db: Session = Depends(get_db)):
+    return compare_latest_snapshots(contract_id, db)
 
-    return {
-        "contract_id": contract_id,
-        "diff": diff_result
-    }
+
+@router.get("/{old_id}/{new_id}")
+def compare_specific(old_id: int, new_id: int, db: Session = Depends(get_db)):
+    return compare_two_snapshots(old_id, new_id, db)
+
+
+@router.post("/live/{contract_id}")
+def compare_live(contract_id: int, payload: dict, db: Session = Depends(get_db)):
+    return compare_live_with_snapshot(contract_id, payload, db)
