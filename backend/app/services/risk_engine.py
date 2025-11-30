@@ -85,3 +85,20 @@ def evaluate_risk(diff: Dict[str, Any]) -> Dict[str, Any]:
         "level": overall_level,
         "events": events,
     }
+
+# -------------------------------------------
+# 🔥 근저당 담보총액 계산 함수 (LTV 계산용)
+# -------------------------------------------
+def calculate_total_liens(records):
+    """
+    records: diff["eulgu"]["added"] + diff["eulgu"]["updated"]
+    → max_claim_amount 합산
+    """
+    total = 0
+
+    for item in records:
+        amt = item.get("max_claim_amount")
+        if isinstance(amt, (int, float)):
+            total += amt
+
+    return total
