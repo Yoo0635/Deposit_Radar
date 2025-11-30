@@ -6,7 +6,7 @@ from backend.app.database.config import init_models
 from backend.app.routes import compare_route
 from backend.app.routes import risk_route
 from backend.app.database import models
-
+from backend.app.routes.address_route import router as address_router
 
 app = FastAPI(title="Deposit Rader", version="1.0.0")
 
@@ -14,5 +14,6 @@ app.include_router(contract_router)
 app.include_router(snapshot_router)
 app.include_router(compare_route.router)
 app.include_router(risk_route.router)
+app.include_router(address_router)
 
 init_models()

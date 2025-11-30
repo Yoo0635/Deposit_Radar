@@ -2,19 +2,16 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from backend.app.database.database import get_db
+from backend.app.models.contract_orm import ContractORM
 from backend.app.services.snapshot_service import get_latest_two_snapshots
 from backend.app.services.diff_engine import compare_snapshots
 from backend.app.services.risk_engine import evaluate_risk
 from backend.app.services.liens_service import extract_total_liens
-from backend.app.services.ltv_service import (
-    compute_ltv,
-    classify_ltv_risk,
-    get_ltv_color,
-)
+from backend.app.services.ltv_service import calculate_ltv, classify_ltv_risk, get_ltv_color
+from backend.app.services.price_service import fetch_market_price
 from backend.app.schema.tenant_risk_schema import TenantRiskProfile
 
 
-# 🔥 risk 전용 그룹 생성
 router = APIRouter(
     prefix="/risk",
     tags=["risk"]
@@ -24,46 +21,46 @@ router = APIRouter(
 @router.post("/{contract_id}", response_model=TenantRiskProfile)
 def evaluate_contract_risk(
     contract_id: int,
-    body: dict,
     db: Session = Depends(get_db)
 ):
     """
-    계약 ID 기준으로 최신 스냅샷 2개 diff → 위험 이벤트 + 총 담보 → LTV → 종합 위험도 계산
+    1) contract_id 로 계약 정보 조회
+    2) 주소 기반 시세 API 자동 호출
+    3) 최신 스냅샷 2개 비교
+    4) diff 기반 위험 이벤트 계산
+    5) 을구 담보총액 계산
+    6) LTV 자동 계산
     """
 
-    # 1) 요청 body 파싱
-    try:
-        deposit_amount = body["deposit_amount"]
-        market_price = body["market_price"]
-    except KeyError:
-        raise HTTPException(status_code=400, detail="deposit_amount, market_price 모두 필요합니다.")
+    # 1) 계약 정보 조회
+    contract = db.query(ContractORM).filter(ContractORM.id == contract_id).first()
+    if not contract:
+        raise HTTPException(status_code=404, detail="계약을 찾을 수 없습니다.")
 
-    # 2) 최신 스냅샷 2개 가져오기
+    address = contract.address
+    deposit_amount = contract.deposit
+
+    # 2) 시세 자동 조회
+    market_price = fetch_market_price(address)
+
+    # 3) 최신 스냅샷 가져오기
     old, new = get_latest_two_snapshots(contract_id, db)
     if not old or not new:
         raise HTTPException(status_code=404, detail="스냅샷이 2개 이상 필요합니다.")
 
-    # 3) diff 엔진으로 가·을구 변화 계산
     diff = compare_snapshots(old.to_dict(), new.to_dict())
 
     # 4) 위험 이벤트 분석
     risk_events = evaluate_risk(diff)
 
-    # 5) 을구에서 담보 역할 금액만 합산
+    # 5) 담보총액 계산
     total_liens = extract_total_liens(new.eulgu)
 
-    # 6) LTV 계산 (🔥 compute_ltv로 통일)
-    ltv = compute_ltv(
-        deposit_amount=deposit_amount,
-        total_liens=total_liens,
-        market_price=market_price,
-    )
-
-    # 7) LTV 위험 등급 + LTV 색상
-    ltv_risk = classify_ltv_risk(ltv)
+    # 6) LTV 계산
+    ltv_value = calculate_ltv(deposit_amount, total_liens, market_price)
+    ltv_risk = classify_ltv_risk(ltv_value)
     ltv_color = get_ltv_color(ltv_risk)
 
-    # 8) 최종 통합 위험 프로필 반환
     return TenantRiskProfile(
         contract_id=contract_id,
         risk_level=risk_events["level"],
@@ -71,7 +68,7 @@ def evaluate_contract_risk(
         total_liens=total_liens,
         deposit_amount=deposit_amount,
         market_price=market_price,
-        ltv=ltv,
+        ltv=ltv_value,
         ltv_risk=ltv_risk,
         ltv_color=ltv_color,
     )
