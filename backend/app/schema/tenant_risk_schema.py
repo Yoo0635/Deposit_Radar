@@ -20,3 +20,6 @@ class TenantRiskProfile(BaseModel):
     deposit_amount: int
     market_price: int
     ltv: float
+
+    ltv_risk: str
+    ltv_color: dict
