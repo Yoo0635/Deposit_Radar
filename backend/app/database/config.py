@@ -2,11 +2,6 @@
 
 SQLAlchemy 엔진 및 세션 팩토리 구성을 추후 추가합니다.
 """
-from dotenv import load_dotenv
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
-import os
-load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
