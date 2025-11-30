@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-JUSO_KEY = os.getenv("JUSO_API_KEY")
+JUSO_KEY = os.getenv("JUSO_KEY")
 BASE_URL = "https://business.juso.go.kr/addrlink/addrLinkApi.do"
 
 

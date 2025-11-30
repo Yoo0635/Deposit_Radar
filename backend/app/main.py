@@ -17,3 +17,12 @@ app.include_router(risk_route.router)
 app.include_router(address_router)
 
 init_models()
+
+@app.get("/test-mlt")
+def test_mlt():
+    from backend.app.services.price_service import debug_test_call
+    debug_test_call()
+    return {"message": "done"}
+
+from backend.app.routes import risk_route
+app.include_router(risk_route.router)

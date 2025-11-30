@@ -1,7 +1,9 @@
 # backend/app/services/risk_engine.py
 
 """
-등기부 diff 결과를 기반으로 위험 이벤트/위험도 수준을 계산하는 엔진.
+등기부 diff 결과를 기반으로 위험 이벤트/위험도 수준을 계산하는 엔진 (MVP 버전).
+근저당 신규 추가는 위험 이벤트에서 제외하고
+가압류/압류, 경매, 근저당 증액만 이벤트로 처리한다.
 """
 
 from typing import Dict, Any, List
@@ -32,6 +34,7 @@ def _max_level(levels: List[str]) -> str:
 def evaluate_risk(diff: Dict[str, Any]) -> Dict[str, Any]:
     """
     diff 결과를 받아 위험 이벤트 목록 및 최종 위험 수준을 계산.
+    근저당 신규 추가는 위험이 아니므로 이벤트에서 제외.
     """
     events: List[Dict[str, Any]] = []
 
@@ -40,6 +43,7 @@ def evaluate_risk(diff: Dict[str, Any]) -> Dict[str, Any]:
         purpose = item.get("purpose", "")
         rank = item.get("rank")
 
+        # 가압류/압류
         if purpose in SEIZURE_PURPOSES:
             events.append({
                 "type": "seizure",
@@ -48,6 +52,7 @@ def evaluate_risk(diff: Dict[str, Any]) -> Dict[str, Any]:
                 "rank": rank,
             })
 
+        # 경매개시/경매
         if purpose in AUCTION_PURPOSES:
             events.append({
                 "type": "auction",
@@ -73,6 +78,7 @@ def evaluate_risk(diff: Dict[str, Any]) -> Dict[str, Any]:
                     "rank": old.get("rank"),
                 })
 
+    # 최종 위험 수준 계산
     overall_level = _max_level([e["level"] for e in events])
 
     return {
