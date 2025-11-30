@@ -134,5 +134,27 @@ export const styles = StyleSheet.create({
     fontWeight: "700",
     marginLeft: Spacing.small,
   },
+  pdfPreviewContainer: {
+    width: "100%",
+    minHeight: 200,
+    borderRadius: 8,
+    marginBottom: Spacing.medium,
+    backgroundColor: Colors.background,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: Spacing.large,
+  },
+  pdfFileName: {
+    ...Typography.body1,
+    fontWeight: "600",
+    color: Colors.textPrimary,
+    marginTop: Spacing.medium,
+    textAlign: "center",
+  },
+  pdfFileSize: {
+    ...Typography.body2,
+    color: Colors.textSecondary,
+    marginTop: Spacing.small,
+  },
 });
 

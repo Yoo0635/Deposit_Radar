@@ -55,8 +55,16 @@ export default function MainDashboardScreen() {
     setNicknameInput(property.nickname || property.address);
   };
 
-  const handleSaveNickname = (propertyId: number) => {
+  const handleSaveNickname = async (propertyId: number) => {
     if (nicknameInput.trim()) {
+      // TODO: 백엔드 API로 닉네임 업데이트
+      // import { updatePropertyNickname } from '../../../api/registry';
+      // const token = await getAuthToken();
+      // await updatePropertyNickname(propertyId, {
+      //   nickname: nicknameInput.trim(),
+      // }, token);
+
+      // 로컬 상태 업데이트
       updateProperty(propertyId, { nickname: nicknameInput.trim() });
     }
     setEditingProperty(null);

@@ -91,10 +91,10 @@ function RootLayoutNav() {
     }
   }, [isNavigationReady, router]);
 
-  // 시스템 알림 처리 함수
+  // 시스템 알림 처리 함수 (포그라운드에서는 알림 표시하지 않음)
   const handleSystemNotification = React.useCallback(
-    (notification: any) => {
-      console.log("시스템 알림 감지:", notification);
+    async (notification: any) => {
+      console.log("시스템 알림 감지 (포그라운드):", notification);
 
       // 알림 데이터 파싱
       const notificationData =
@@ -120,23 +120,12 @@ function RootLayoutNav() {
         allText.includes("등본") ||
         allText.includes("등기부")
       ) {
-        console.log("✅ 등기부등본 변경 알림 감지 (시스템 알림)");
-
-        // 무한 알림 방지: 마지막 처리 시간 확인
-        const now = Date.now();
-        const timeSinceLastProcess = now - lastNotificationTime.current;
-        const PROCESS_COOLDOWN = 5000; // 5초
-
-        if (timeSinceLastProcess < PROCESS_COOLDOWN) {
-          console.log("중복 알림 감지 - 스킵");
-          return;
-        }
-
-        lastNotificationTime.current = now;
+        console.log("✅ 등기부등본 변경 알림 감지 (포그라운드)");
 
         // 알림 데이터 준비
+        const notificationId = Date.now().toString();
         const dataToSave: NotificationData = {
-          id: Date.now().toString(),
+          id: notificationId,
           address:
             notificationData.address || "서울 강남구 테헤란로 123-45, 101호",
           deposit: notificationData.deposit
@@ -156,58 +145,40 @@ function RootLayoutNav() {
             notificationData.request_date || new Date().toISOString(),
         };
 
+        // 중복 체크: 이미 처리된 알림인지 확인
+        try {
+          const AsyncStorage = (
+            await import("@react-native-async-storage/async-storage")
+          ).default;
+          const processedNotificationId = await AsyncStorage.getItem(
+            "lastProcessedNotificationId"
+          );
+
+          if (processedNotificationId === notificationId) {
+            console.log(
+              "포그라운드: 이미 처리된 알림 - 스킵",
+              notificationId
+            );
+            return;
+          }
+
+          // 알림 ID 저장 (중복 방지)
+          await AsyncStorage.setItem(
+            "lastProcessedNotificationId",
+            notificationId
+          );
+        } catch (error) {
+          console.log("중복 체크 실패:", error);
+        }
+
+        // 포그라운드에서는 알림을 표시하지 않음 (Headless JS에서만 표시)
+        // 알림 데이터만 저장하고 화면 이동만 처리
+        console.log(
+          "포그라운드: 알림 데이터 저장 - 알림 표시는 하지 않음 (Headless JS에서만 표시)"
+        );
+
         // 알림 데이터를 Context에 저장
         setPendingNotification(dataToSave);
-
-        // 알림 표시 (각각의 새로운 알림마다 하나씩!)
-        const showNotification = async () => {
-          try {
-            const AsyncStorage = (
-              await import("@react-native-async-storage/async-storage")
-            ).default;
-
-            // 무한 알림 방지: 마지막 처리 시간 확인 (5초 쿨다운만 체크)
-            const now = Date.now();
-            const lastProcessTimeStr = await AsyncStorage.getItem(
-              "lastNotificationProcessTime"
-            );
-            const lastProcessTime = lastProcessTimeStr
-              ? Number(lastProcessTimeStr)
-              : 0;
-            const timeSinceLastProcess = now - lastProcessTime;
-            const PROCESS_COOLDOWN = 5000; // 5초
-
-            // 쿨다운 시간이 지났으면 새로운 알림으로 인식하고 표시
-            if (timeSinceLastProcess >= PROCESS_COOLDOWN) {
-              // 마지막 처리 시간 저장
-              await AsyncStorage.setItem(
-                "lastNotificationProcessTime",
-                now.toString()
-              );
-
-              // 알림 표시
-              await Notifications.scheduleNotificationAsync({
-                content: {
-                  title: "등기부등본 변경 알림",
-                  body: "등기부등본 변경 사항이 감지되었습니다. 앱을 실행할까요?",
-                  data: dataToSave as any,
-                },
-                trigger: null,
-              });
-              console.log("등기부등본 변경 알림 표시 (새로운 알림)");
-            } else {
-              console.log(
-                `중복 알림 감지 - 스킵 (마지막 처리로부터 ${Math.floor(
-                  timeSinceLastProcess / 1000
-                )}초 경과)`
-              );
-            }
-          } catch (error) {
-            console.log("알림 표시 중 오류:", error);
-          }
-        };
-
-        showNotification();
 
         // 자동 로그인
         login();
@@ -222,6 +193,7 @@ function RootLayoutNav() {
   );
 
   // Android 시스템 알림 감지 설정 (Android만 지원)
+  // 포그라운드 리스너는 비활성화 - Headless JS만 사용하여 중복 알림 방지
   useEffect(() => {
     if (Platform.OS === "android") {
       const checkAndRequestPermission = async () => {
@@ -234,23 +206,11 @@ function RootLayoutNav() {
             RNAndroidNotificationListener.requestPermission();
           }
 
-          // Native Module에 직접 접근하여 리스너 설정 시도
-          try {
-            const { RNAndroidNotificationListener: NativeModule } =
-              NativeModules;
-            if (NativeModule && NativeModule.setNotificationListener) {
-              NativeModule.setNotificationListener((notification: any) => {
-                handleSystemNotification(notification);
-              });
-              console.log("시스템 알림 리스너 설정 완료");
-            } else {
-              console.log(
-                "시스템 알림 리스너 API를 사용할 수 없습니다. Headless JS만 사용됩니다."
-              );
-            }
-          } catch (error) {
-            console.log("시스템 알림 리스너 설정 실패:", error);
-          }
+          // 포그라운드 리스너 비활성화 - Headless JS만 사용
+          // 중복 알림 방지를 위해 포그라운드에서는 처리하지 않음
+          console.log(
+            "포그라운드 시스템 알림 리스너 비활성화 - Headless JS만 사용하여 중복 알림 방지"
+          );
         } catch (error) {
           console.log("Android 알림 권한 확인 실패:", error);
         }
@@ -258,7 +218,7 @@ function RootLayoutNav() {
 
       checkAndRequestPermission();
     }
-  }, [handleSystemNotification]);
+  }, []);
 
   // 앱이 포그라운드로 올 때 AsyncStorage에서 알림 데이터 확인
   useEffect(() => {
