@@ -3,6 +3,10 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from app.services.llm_engine import get_playbook_data
 from app.services.pdf_maker import create_pdf
+from backend.app.routes.contract_route import router as contract_router
+from backend.app.routes.registry_route import router as registry_router
+from backend.app.routes.registry_snapshot_route import router as snapshot_router
+from backend.app.database.config import init_models
 
 app = FastAPI()
 
@@ -22,3 +26,7 @@ def generate(req: RequestBody):
     create_pdf(ai_data, pdf_filename)
     
     return FileResponse(pdf_filename, filename=pdf_filename)
+app.include_router(contract_router)
+app.include_router(registry_router)
+app.include_router(snapshot_router)
+init_models()
