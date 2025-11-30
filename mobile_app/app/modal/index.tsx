@@ -52,26 +52,27 @@ export default function AddPropertyModal() {
     setIsLoading(true);
 
     try {
-      // TODO: 백엔드 API로 주택 등록
+      // 백엔드 API로 주택 등록 (닉네임은 나중에 대시보드에서 설정)
+      // TODO: 실제 백엔드 API 호출 구현
       // import { registerProperty } from '../../api/registry';
       // const token = await getAuthToken(); // 인증 토큰 가져오기
-      // await registerProperty({
-      //   address,
+      // const response = await registerProperty({
+      //   nickname: "", // 주택 등록 시에는 닉네임 없음 (나중에 대시보드에서 설정)
+      //   address: address,
       //   deposit: parseInt(deposit.replace(/,/g, ""), 10),
-      //   moveInDate,
-      //   confirmDate,
+      //   move_in_date: moveInDate,
+      //   confirmation_date: confirmDate,
       // }, token);
 
       // 주택 정보를 Context에 추가
       // TODO: 백엔드에서 받은 응답을 그대로 사용
       const newProperty = {
         id: Date.now(), // 임시 ID, 백엔드에서 받은 id로 교체
-        nickname: "",
+        nickname: "", // 주택 등록 시에는 닉네임 없음 (나중에 대시보드에서 설정)
         address: address,
         deposit: parseInt(deposit.replace(/,/g, ""), 10),
         move_in_date: moveInDate,
         confirmation_date: confirmDate,
-        created_at: new Date().toISOString(), // 임시, 백엔드에서 받은 값으로 교체
       };
 
       addProperty(newProperty);

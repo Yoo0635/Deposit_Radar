@@ -9,7 +9,6 @@ export interface Property {
   deposit: number;
   move_in_date: string; // 전입일
   confirmation_date: string; // 확정일자
-  created_at: string; // 등본 발급일
 }
 
 interface PropertyContextType {
