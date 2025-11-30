@@ -28,7 +28,7 @@ export default function DocumentUploadScreen() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]); // 이미지 2장 저장
   const [selectedPdf, setSelectedPdf] = useState<SelectedPdf | null>(null);
 
   const requestCameraPermission = async () => {
@@ -61,7 +61,7 @@ export default function DocumentUploadScreen() {
       });
 
       if (!result.canceled && result.assets[0]) {
-        setSelectedImage(result.assets[0].uri);
+        setSelectedImages([...selectedImages, result.assets[0].uri]);
         setSelectedPdf(null); // 이미지 선택 시 PDF 제거
       }
     } catch {
@@ -88,7 +88,7 @@ export default function DocumentUploadScreen() {
       });
 
       if (!result.canceled && result.assets[0]) {
-        setSelectedImage(result.assets[0].uri);
+        setSelectedImages([...selectedImages, result.assets[0].uri]);
         setSelectedPdf(null); // 이미지 선택 시 PDF 제거
       }
     } catch {
@@ -110,7 +110,7 @@ export default function DocumentUploadScreen() {
           size: result.assets[0].size,
         };
         setSelectedPdf(pdfFile);
-        setSelectedImage(null); // PDF 선택 시 이미지 제거
+        setSelectedImages([]); // PDF 선택 시 이미지 제거
       }
     } catch (error) {
       console.error("PDF 선택 오류:", error);
@@ -119,7 +119,7 @@ export default function DocumentUploadScreen() {
   };
 
   const handleSubmitDocument = async () => {
-    if (!selectedImage && !selectedPdf) {
+    if (selectedImages.length === 0 && !selectedPdf) {
       Alert.alert("알림", "등기부등본 이미지 또는 PDF 파일을 선택해주세요.");
       return;
     }
@@ -129,8 +129,11 @@ export default function DocumentUploadScreen() {
     // TODO: 백엔드 API 연동 시 아래 함수로 실제 업로드
     // if (selectedPdf) {
     //   await uploadPdfFile(selectedPdf);
-    // } else if (selectedImage) {
-    //   await uploadImageFile(selectedImage);
+    // } else if (selectedImages.length > 0) {
+    //   // 이미지 2장 업로드
+    //   for (const imageUri of selectedImages) {
+    //     await uploadImageFile(imageUri);
+    //   }
     // }
 
     // 임시: 시뮬레이션 (백엔드 연동 후 제거)
@@ -159,19 +162,32 @@ export default function DocumentUploadScreen() {
         촬영해주세요.
       </Text>
 
-      {selectedImage && (
+      {selectedImages.length > 0 && (
         <View style={globalStyles.card}>
-          <Text style={styles.previewLabel}>선택된 이미지</Text>
-          <Image source={{ uri: selectedImage }} style={styles.previewImage} />
-          <TouchableOpacity
-            style={styles.removeButton}
-            onPress={() => {
-              setSelectedImage(null);
-            }}
-          >
-            <Ionicons name="close-circle" size={24} color={Colors.danger} />
-            <Text style={styles.removeButtonText}>이미지 제거</Text>
-          </TouchableOpacity>
+          <Text style={styles.previewLabel}>
+            선택된 이미지 ({selectedImages.length}장)
+          </Text>
+          <View style={styles.imagePreviewContainer}>
+            {selectedImages.map((imageUri, index) => (
+              <View key={index} style={styles.imagePreviewItem}>
+                <Image source={{ uri: imageUri }} style={styles.previewImage} />
+                <TouchableOpacity
+                  style={styles.removeImageButton}
+                  onPress={() => {
+                    setSelectedImages(
+                      selectedImages.filter((_, i) => i !== index)
+                    );
+                  }}
+                >
+                  <Ionicons
+                    name="close-circle"
+                    size={24}
+                    color={Colors.danger}
+                  />
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
         </View>
       )}
 
@@ -230,11 +246,11 @@ export default function DocumentUploadScreen() {
       <TouchableOpacity
         style={[
           styles.submitButton,
-          (isLoading || (!selectedImage && !selectedPdf)) &&
+          (isLoading || (selectedImages.length === 0 && !selectedPdf)) &&
             styles.submitButtonDisabled,
         ]}
         onPress={handleSubmitDocument}
-        disabled={isLoading || (!selectedImage && !selectedPdf)}
+        disabled={isLoading || (selectedImages.length === 0 && !selectedPdf)}
       >
         <Text style={styles.submitButtonText}>
           {isLoading ? "분석 중..." : "제출 및 분석 시작"}

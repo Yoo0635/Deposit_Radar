@@ -277,18 +277,18 @@ function RootLayoutNav() {
     responseListener.current =
       Notifications.addNotificationResponseReceivedListener(
         async (response) => {
-          console.log("푸시 알림 탭됨:", response);
+        console.log("푸시 알림 탭됨:", response);
 
-          const title = response.notification.request.content.title || "";
-          const body = response.notification.request.content.body || "";
+        const title = response.notification.request.content.title || "";
+        const body = response.notification.request.content.body || "";
 
-          if (
-            title.includes("등기부등본") ||
-            title.includes("등본") ||
-            body.includes("등기부등본") ||
-            body.includes("등본")
-          ) {
-            console.log("등기부등본 변경 알림 탭 - 분석 탭으로 이동");
+        if (
+          title.includes("등기부등본") ||
+          title.includes("등본") ||
+          body.includes("등기부등본") ||
+          body.includes("등본")
+        ) {
+          console.log("등기부등본 변경 알림 탭 - 분석 탭으로 이동");
 
             // 1. 알림 데이터에서 분석 정보 추출
             const notificationData = response.notification.request.content.data;
@@ -523,7 +523,7 @@ export default function RootLayout() {
     <AuthProvider>
       <PropertyProvider>
         <NotificationProvider>
-          <RootLayoutNav />
+        <RootLayoutNav />
         </NotificationProvider>
       </PropertyProvider>
     </AuthProvider>

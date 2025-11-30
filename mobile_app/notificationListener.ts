@@ -7,7 +7,7 @@ import * as Notifications from "expo-notifications";
 /**
  * Headless JS 태스크 - 백그라운드에서 알림을 감지하고 처리
  * 이 함수는 앱이 백그라운드나 종료 상태에서도 실행됩니다.
- *
+ * 
  * @param notification - 알림 데이터 (JSON 문자열 또는 객체)
  */
 export const headlessNotificationListener = async ({ notification }: any) => {
