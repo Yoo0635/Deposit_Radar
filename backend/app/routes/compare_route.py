@@ -18,8 +18,19 @@ def compare_latest(contract_id: int, db: Session = Depends(get_db)):
     """
     특정 계약(contract_id)에 대해, 저장된 스냅샷 중
     최신 2개를 비교해서 diff + risk 를 반환.
+    
+    시연용: Swagger UI에서 이 엔드포인트를 호출하면
+    Diff 엔진과 Risk 엔진이 작동하여 결과를 반환합니다.
     """
-    return compare_latest_snapshots(contract_id, db)
+    print(f"🔍 [Diff/Risk 분석 요청] Contract ID: {contract_id}")
+    result = compare_latest_snapshots(contract_id, db)
+    print(f"✅ [Diff/Risk 분석 완료] Contract ID: {contract_id}")
+    risk_obj = result.get('risk')
+    if risk_obj:
+        print(f"   위험도: {risk_obj.risk_level}")
+    else:
+        print(f"   위험도: N/A")
+    return result
 
 
 @router.get("/{old_id}/{new_id}")

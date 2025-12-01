@@ -33,7 +33,7 @@
         
         h3 { color: var(--theme-color); border-bottom: 2px solid var(--theme-color); margin-top: 25px; padding-bottom: 5px; font-size: 16px; }
 
-        .checklist li { background: #fff; border: 1px solid #ddd; padding: 10px; margin-bottom: 6px; border-radius: 5px; list-style: none; font-size: 13px; }
+        .checklist li { background: #fff; border: 1px solid #ddd; padding: 10px; margin-bottom: 6px; border-radius: 5px; list-style: none; font-size: 13px; page-break-inside: avoid; }
         .checklist li::before { content: "☑️ "; margin-right: 8px; }
 
         .glossary-box {
@@ -42,14 +42,15 @@
             border-radius: 8px;
             padding: 15px;
             margin-top: 15px;
+            page-break-inside: avoid;
         }
         .glossary-title { font-weight: bold; font-size: 13px; color: #555; margin-bottom: 8px; display: block; }
         .glossary-item { font-size: 12px; margin-bottom: 4px; color: #666; }
         .term { color: var(--theme-color); font-weight: bold; margin-right: 5px; }
 
-        .message-box { background: #f0f0f0; padding: 15px; border-left: 4px solid var(--theme-color); border-radius: 4px; font-size: 13px; white-space: pre-wrap; }
+        .message-box { background: #f0f0f0; padding: 15px; border-left: 4px solid var(--theme-color); border-radius: 4px; font-size: 13px; white-space: pre-wrap; page-break-inside: avoid; }
 
-        .qna-item { margin-bottom: 12px; background: #fafafa; padding: 10px; border-radius: 6px; border: 1px solid #eee; }
+        .qna-item { margin-bottom: 12px; background: #fafafa; padding: 10px; border-radius: 6px; border: 1px solid #eee; page-break-inside: avoid; }
         .question { font-weight: bold; color: #d63031; font-size: 13px; display: block; margin-bottom: 3px; }
         .answer { font-size: 12px; color: #444; }
 

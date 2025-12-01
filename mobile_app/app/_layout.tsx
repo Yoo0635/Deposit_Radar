@@ -2,8 +2,24 @@
 // 루트 레이아웃 파일 - 인증 상태에 따른 화면 전환 및 알림 감지
 import { Stack, useRouter, useSegments } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import { AppRegistry, AppState, NativeModules, Platform } from "react-native";
+import { AppRegistry, AppState, LogBox, NativeModules, Platform } from "react-native";
 import * as Notifications from "expo-notifications";
+
+// 경고 메시지 숨기기
+LogBox.ignoreLogs([
+  "Non-serializable values were found in the navigation state",
+  "Remote debugger",
+  "Open debugger to view warnings",
+  "Warning:",
+  "Unable to activate keep awake",
+  "Error: Unable to activate keep awake",
+  "InvocationTargetException",
+  "java.lang.reflect.InvocationTargetException",
+  "Route.*is missing the required default export",
+  "No route named",
+  "SafeAreaView has been deprecated",
+  "Layout children",
+]);
 import RNAndroidNotificationListener, {
   RNAndroidNotificationListenerHeadlessJsName,
 } from "react-native-android-notification-listener";
@@ -56,6 +72,13 @@ function RootLayoutNav() {
     setIsNavigationReady(true);
   }, []);
 
+  // 로그아웃 시 알림 데이터 클리어
+  useEffect(() => {
+    if (!isAuthenticated && pendingNotification) {
+      setPendingNotification(null);
+    }
+  }, [isAuthenticated, pendingNotification, setPendingNotification]);
+
   // 자동 로그인이 활성화되어 있고 알림 데이터가 있으면 분석 화면으로 이동
   useEffect(() => {
     if (
@@ -64,7 +87,6 @@ function RootLayoutNav() {
       isAuthenticated &&
       pendingNotification
     ) {
-      console.log("자동 로그인 + 알림 데이터 감지 - 분석 화면으로 이동");
       setTimeout(() => {
         router.replace("/(tabs)/analysis" as any);
       }, 300);
@@ -230,8 +252,8 @@ function RootLayoutNav() {
         const stored = await AsyncStorage.getItem("pendingNotification");
         if (stored) {
           const data = JSON.parse(stored);
-          console.log("앱 포그라운드 - 저장된 알림 데이터 확인:", data);
-          // 알림 데이터가 있고, 현재 pendingNotification이 없으면 설정
+          
+          // 현재 pendingNotification이 없으면 설정 (중복 체크는 notificationListener에서 이미 함)
           if (!pendingNotification) {
             setPendingNotification(data);
             // 자동 로그인
@@ -268,8 +290,38 @@ function RootLayoutNav() {
     // 포그라운드에서 알림을 받았을 때 (앱이 실행 중일 때)
     // 알림은 표시되지만, 사용자가 알림을 탭했을 때만 화면 이동
     notificationListener.current =
-      Notifications.addNotificationReceivedListener((notification) => {
+      Notifications.addNotificationReceivedListener(async (notification) => {
         console.log("푸시 알림 수신:", notification);
+        
+        // 등기부등본 변경 알림인 경우 중복 체크
+        const title = notification.request.content.title || "";
+        const body = notification.request.content.body || "";
+        
+        if (
+          (title.includes("등기부등본") || title.includes("등본") ||
+           body.includes("등기부등본") || body.includes("등본"))
+        ) {
+          // 알림 데이터에서 ID 추출
+          const notificationData = notification.request.content.data;
+          const notificationId = notificationData?.id || Date.now().toString();
+          
+          // 이미 표시된 알림인지 확인
+          try {
+            const AsyncStorage = (
+              await import("@react-native-async-storage/async-storage")
+            ).default;
+            const lastNotificationId = await AsyncStorage.getItem("lastNotificationId");
+            
+            if (lastNotificationId === notificationId) {
+              console.log("중복 알림 감지 (포그라운드) - 스킵:", notificationId);
+              // 중복 알림은 무시
+              return;
+            }
+          } catch (error) {
+            console.log("알림 중복 체크 실패:", error);
+          }
+        }
+        
         // 알림은 표시만 하고, 탭했을 때 처리 (responseListener에서 처리)
       });
 
@@ -293,55 +345,81 @@ function RootLayoutNav() {
             // 1. 알림 데이터에서 분석 정보 추출
             const notificationData = response.notification.request.content.data;
 
-            // 2. 알림 데이터를 즉시 저장 (인증 체크 전에 저장)
-            const dataToSave: NotificationData = notificationData
-              ? {
-                  id: String(notificationData.property_id || Date.now()),
-                  address: String(notificationData.address || ""),
-                  deposit: Number(notificationData.deposit || 0),
-                  amount: notificationData.amount
-                    ? Number(notificationData.amount)
-                    : undefined,
-                  market_price: notificationData.market_price
-                    ? Number(notificationData.market_price)
-                    : undefined,
-                  ltv: notificationData.ltv
-                    ? Number(notificationData.ltv)
-                    : undefined,
-                  riskLevel: String(notificationData.risk_level || "AMBER"),
-                  seniorDebtType: notificationData.senior_debt_type
-                    ? String(notificationData.senior_debt_type)
-                    : undefined,
-                  changeType: notificationData.change_type
-                    ? String(notificationData.change_type)
-                    : undefined,
-                  requestDate: notificationData.request_date
-                    ? String(notificationData.request_date)
-                    : undefined,
-                }
-              : {
-                  id: Date.now().toString(),
-                  address: "서울 강남구 테헤란로 123-45, 101호",
-                  deposit: 200000000,
-                  amount: 50000000,
-                  market_price: 300000000,
-                  ltv: 83.3,
-                  riskLevel: "AMBER",
-                  seniorDebtType: "근저당권",
-                  changeType: "신규 설정",
-                  requestDate: new Date().toISOString(),
-                };
+            // 2. AsyncStorage에서 저장된 알림 데이터 가져오기 (더 정확한 데이터)
+            try {
+              const AsyncStorage = (
+                await import("@react-native-async-storage/async-storage")
+              ).default;
+              const stored = await AsyncStorage.getItem("pendingNotification");
+              
+              if (stored) {
+                const storedData = JSON.parse(stored);
+                console.log("알림 탭 - 저장된 데이터 사용:", storedData);
+                
+                // 저장된 데이터를 Context에 설정 (분석 모달 표시)
+                setPendingNotification(storedData);
+                
+                // 즉시 자동 로그인
+                login();
+                
+                // 분석 화면으로 이동 (모달이 자동으로 표시됨)
+                setTimeout(() => {
+                  router.replace("/(tabs)/analysis" as any);
+                }, 300);
+              } else {
+                // 저장된 데이터가 없으면 알림 데이터 사용
+                const dataToSave: NotificationData = notificationData
+                  ? {
+                      id: String(notificationData.id || notificationData.property_id || Date.now()),
+                      address: String(notificationData.address || ""),
+                      deposit: Number(notificationData.deposit || 0),
+                      amount: notificationData.amount
+                        ? Number(notificationData.amount)
+                        : undefined,
+                      market_price: notificationData.market_price
+                        ? Number(notificationData.market_price)
+                        : undefined,
+                      ltv: notificationData.ltv
+                        ? Number(notificationData.ltv)
+                        : undefined,
+                      riskLevel: String(notificationData.risk_level || notificationData.riskLevel || "AMBER"),
+                      seniorDebtType: notificationData.senior_debt_type || notificationData.seniorDebtType
+                        ? String(notificationData.senior_debt_type || notificationData.seniorDebtType)
+                        : undefined,
+                      changeType: notificationData.change_type || notificationData.changeType
+                        ? String(notificationData.change_type || notificationData.changeType)
+                        : undefined,
+                      requestDate: notificationData.request_date || notificationData.requestDate
+                        ? String(notificationData.request_date || notificationData.requestDate)
+                        : undefined,
+                    }
+                  : {
+                      id: Date.now().toString(),
+                      address: "서울 강남구 테헤란로 123-45, 101호",
+                      deposit: 200000000,
+                      amount: 50000000,
+                      market_price: 300000000,
+                      ltv: 83.3,
+                      riskLevel: "AMBER",
+                      seniorDebtType: "근저당권",
+                      changeType: "신규 설정",
+                      requestDate: new Date().toISOString(),
+                    };
 
-            // 3. 알림 데이터를 Context에 저장
-            setPendingNotification(dataToSave);
-
-            // 5. 즉시 자동 로그인 (알림을 탭했을 때는 무조건 로그인)
-            login();
-
-            // 6. 분석 화면으로 즉시 이동
-            setTimeout(() => {
-              router.replace("/(tabs)/analysis" as any);
-            }, 300);
+                // 알림 데이터를 Context에 저장
+                setPendingNotification(dataToSave);
+                
+                // 즉시 자동 로그인
+                login();
+                
+                // 분석 화면으로 이동
+                setTimeout(() => {
+                  router.replace("/(tabs)/analysis" as any);
+                }, 300);
+              }
+            } catch (error) {
+              console.log("알림 데이터 처리 실패:", error);
+            }
           }
         }
       );

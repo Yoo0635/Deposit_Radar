@@ -32,6 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // 로그아웃 함수
   const logout = () => {
     setIsAuthenticated(false);
+    // 로그아웃 시 알림 데이터는 _layout.tsx에서 클리어됨
   };
 
   return (

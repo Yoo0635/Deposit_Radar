@@ -178,5 +178,25 @@ export const styles = StyleSheet.create({
     color: Colors.textSecondary,
     marginTop: Spacing.small,
   },
+  loadingContainer: {
+    backgroundColor: "#E3F2FD",
+    padding: Spacing.large,
+    borderRadius: 12,
+    marginBottom: Spacing.large,
+    alignItems: "center",
+  },
+  loadingText: {
+    ...Typography.h3,
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#008080",
+    marginBottom: Spacing.small,
+  },
+  loadingSubText: {
+    ...Typography.body2,
+    color: Colors.textSecondary,
+    textAlign: "center",
+    lineHeight: 20,
+  },
 });
 

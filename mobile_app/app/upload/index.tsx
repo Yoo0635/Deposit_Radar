@@ -4,9 +4,10 @@ import { Ionicons } from "@expo/vector-icons";
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useState, useEffect } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Image,
   Modal,
@@ -26,10 +27,22 @@ interface SelectedPdf {
 
 export default function DocumentUploadScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const [contractId, setContractId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]); // 이미지 2장 저장
   const [selectedPdf, setSelectedPdf] = useState<SelectedPdf | null>(null);
+
+  // route params에서 contract_id 받기
+  useEffect(() => {
+    if (params.contractId) {
+      const id = parseInt(params.contractId as string, 10);
+      if (!isNaN(id)) {
+        setContractId(id);
+      }
+    }
+  }, [params.contractId]);
 
   const requestCameraPermission = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -119,39 +132,81 @@ export default function DocumentUploadScreen() {
   };
 
   const handleSubmitDocument = async () => {
+    // 파일 선택 확인
     if (selectedImages.length === 0 && !selectedPdf) {
       Alert.alert("알림", "등기부등본 이미지 또는 PDF 파일을 선택해주세요.");
       return;
     }
 
+    // contractId 확인
+    if (!contractId) {
+      Alert.alert("오류", "주택 정보를 찾을 수 없습니다. 다시 주택을 등록해주세요.");
+      router.replace("/(tabs)/" as any);
+      return;
+    }
+
+    // 이미 로딩 중이면 중복 요청 방지
+    if (isLoading) {
+      return;
+    }
+
     setIsLoading(true);
 
-    // TODO: 백엔드 API 연동 시 아래 함수로 실제 업로드
-    // if (selectedPdf) {
-    //   await uploadPdfFile(selectedPdf);
-    // } else if (selectedImages.length > 0) {
-    //   // 이미지 2장 업로드
-    //   for (const imageUri of selectedImages) {
-    //     await uploadImageFile(imageUri);
-    //   }
-    // }
+    try {
+      console.log("📤 파일 업로드 시작...", {
+        contractId,
+        imagesCount: selectedImages.length,
+        hasPdf: !!selectedPdf,
+      });
 
-    // 임시: 시뮬레이션 (백엔드 연동 후 제거)
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsLoading(false);
+      // 백엔드 API로 파일 업로드 및 OCR 처리
+      // 업로드 → OCR → 스냅샷 생성 → LTV 계산까지 시간이 걸릴 수 있으므로
+      // 타임아웃 없이 완료될 때까지 대기
+      const { uploadDocuments } = await import("../../api/registry");
 
-    Alert.alert(
-      "업로드 성공!",
-      "등본 분석이 시작되었습니다. 완료되면 자동으로 대시보드에 추가됩니다.",
-      [
-        {
-          text: "확인",
-          onPress: () => {
-            router.replace("/(tabs)/" as any);
+      const result = await uploadDocuments(
+        contractId,
+        selectedImages,
+        selectedPdf || undefined
+      );
+
+      console.log("✅ OCR 처리 완료:", result);
+
+      Alert.alert(
+        "업로드 성공!",
+        "등본 분석이 완료되었습니다. 분석 결과는 대시보드에서 확인할 수 있습니다.",
+        [
+          {
+            text: "확인",
+            onPress: () => {
+              // 주택 목록 새로고침을 위해 대시보드로 이동
+              router.replace("/(tabs)/" as any);
+            },
           },
-        },
-      ]
-    );
+        ]
+      );
+    } catch (error: any) {
+      console.error("❌ 파일 업로드 실패:", error);
+      
+      const errorMessage = error.message || "파일 업로드 중 오류가 발생했습니다.";
+      
+      Alert.alert(
+        "업로드 실패",
+        `${errorMessage}\n\n다시 시도해주세요.`,
+        [
+          {
+            text: "확인",
+            style: "cancel",
+            onPress: () => {
+              // 에러 발생 시에도 로딩 상태 해제
+            },
+          },
+        ]
+      );
+    } finally {
+      // 항상 로딩 상태 해제
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -161,6 +216,17 @@ export default function DocumentUploadScreen() {
         초기 등기부등본을 업로드해주세요. 텍스트가 선명하게 보이도록
         촬영해주세요.
       </Text>
+
+      {/* 로딩 인디케이터 */}
+      {isLoading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#008080" />
+          <Text style={styles.loadingText}>등본 분석 중...</Text>
+          <Text style={styles.loadingSubText}>
+            OCR 처리 및 LTV 계산 중입니다.{'\n'}잠시만 기다려주세요.
+          </Text>
+        </View>
+      )}
 
       {selectedImages.length > 0 && (
         <View style={globalStyles.card}>

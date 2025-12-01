@@ -338,4 +338,24 @@ export const styles = StyleSheet.create({
     fontWeight: "700",
     marginLeft: Spacing.small,
   },
+  // 로딩 오버레이
+  loadingOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingContainer: {
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: Spacing.xLarge,
+    alignItems: "center",
+    minWidth: 200,
+  },
+  loadingText: {
+    ...Typography.body1,
+    marginTop: Spacing.medium,
+    color: Colors.textPrimary,
+    textAlign: "center",
+  },
 });

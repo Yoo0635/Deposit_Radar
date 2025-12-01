@@ -45,7 +45,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         const stored = await AsyncStorage.getItem(NOTIFICATION_STORAGE_KEY);
         if (stored) {
           const data = JSON.parse(stored);
-          console.log("저장된 알림 데이터 로드:", data);
           setPendingNotification(data);
         }
       } catch (error) {
@@ -67,10 +66,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           NOTIFICATION_STORAGE_KEY,
           JSON.stringify(data)
         );
-        console.log("알림 데이터 저장:", data);
       } else {
         await AsyncStorage.removeItem(NOTIFICATION_STORAGE_KEY);
-        console.log("알림 데이터 삭제");
       }
     } catch (error) {
       console.log("알림 데이터 저장 실패:", error);

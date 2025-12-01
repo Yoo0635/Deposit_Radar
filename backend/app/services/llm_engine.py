@@ -6,31 +6,47 @@ from datetime import datetime
 
 # 환경 변수 로드
 load_dotenv()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def get_playbook_data(risk_info):
+def _get_client():
+    """OpenAI 클라이언트를 지연 초기화합니다."""
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY가 .env 파일에 설정되지 않았습니다.")
+    return OpenAI(api_key=api_key)
+
+def get_playbook_data(risk_info, risk_grade=None):
     """
     GPT-5-Nano(기획 모델)를 사용하여 대응 매뉴얼을 생성합니다.
+    
+    Args:
+        risk_info: 위험 분석 정보 문자열
+        risk_grade: 명시적으로 전달된 위험 등급 (RED, AMBER, GREEN)
     """
     
-    # [1] 등급 감지 로직
-    current_grade = "GREEN" 
-
-    if "RED" in risk_info:
-        current_grade = "RED"
-    elif "AMBER" in risk_info:
-        current_grade = "AMBER"
-    elif "GREEN" in risk_info:
-        current_grade = "GREEN"
+    # [1] 등급 감지 로직 - 명시적으로 전달된 등급 우선 사용
+    if risk_grade and risk_grade in ["RED", "AMBER", "GREEN"]:
+        current_grade = risk_grade
+        print(f"✅ [LLM 엔진] 명시적 등급 사용: {current_grade}")
     else:
-        if "경매" in risk_info:
+        # 문자열에서 등급 찾기 (하위 호환성)
+        current_grade = "GREEN" 
+
+        if "RED" in risk_info:
             current_grade = "RED"
-        elif "가압류" in risk_info: 
+        elif "AMBER" in risk_info:
             current_grade = "AMBER"
-        elif "압류" in risk_info:    
-            current_grade = "RED"
-        elif "주의" in risk_info:
-            current_grade = "AMBER"
+        elif "GREEN" in risk_info:
+            current_grade = "GREEN"
+        else:
+            if "경매" in risk_info:
+                current_grade = "RED"
+            elif "가압류" in risk_info: 
+                current_grade = "AMBER"
+            elif "압류" in risk_info:    
+                current_grade = "RED"
+            elif "주의" in risk_info:
+                current_grade = "AMBER"
+        print(f"⚠️ [LLM 엔진] 문자열에서 등급 추출: {current_grade}")
 
     # [2] 등급별 맞춤형 가이드라인
     if current_grade == "RED":
@@ -67,7 +83,7 @@ def get_playbook_data(risk_info):
     3. **JSON Only**: 오직 표준 JSON 포맷으로만 응답하라.
     """
 
-    # [4] 유저 프롬프트 (데이터 주입)
+    # [5] 유저 프롬프트 (데이터 주입)
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M")
     
     user_msg = f"""
@@ -77,7 +93,7 @@ def get_playbook_data(risk_info):
     # [Required JSON Schema]
     {{
         "meta": {{
-            "title": "문서 제목",
+            "title": "[보증금레이더] 임차인 수신 가이드북",
             "grade": "{current_grade}",
             "color": "색상 코드",
             "generated_at": "{current_time}"
@@ -112,8 +128,9 @@ def get_playbook_data(risk_info):
     }}
     """
 
-    # [5] API 호출
+    # [6] API 호출
     try:
+        client = _get_client()
         print(f"🤖 Calling Model: gpt-5-nano for {current_grade} grade analysis...")
         response = client.chat.completions.create(
             model="gpt-5-nano", 
@@ -122,13 +139,14 @@ def get_playbook_data(risk_info):
                 {"role": "user", "content": user_msg}
             ],
             response_format={"type": "json_object"},
-            temperature=0.2
+            #temperature=0.2
         )
         return json.loads(response.choices[0].message.content)
 
     except Exception as e:
         print(f"⚠️ Falling back to 'gpt-4o-mini' due to: {e}")
         try:
+            client = _get_client()
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
@@ -143,7 +161,13 @@ def get_playbook_data(risk_info):
         except Exception as e2:
             print(f"❌ Critical Error: {e2}")
             return {
-                "meta": {"title": "분석 실패", "grade": current_grade, "color": "#888888", "generated_at": current_time},
+                "meta": {"title": "[보증금레이더] 임차인 수신 가이드북", "grade": current_grade, "color": "#888888", "generated_at": current_time},
                 "user_name": "사용자",
-                "content": {"summary": "오류 발생", "checklist": [], "glossary": [], "qna_list": [], "message_to_lessor": ""}
+                "content": {
+                    "summary": "오류 발생", 
+                    "checklist": [], 
+                    "glossary": [], 
+                    "qna_list": [], 
+                    "message_to_lessor": ""
+                }
             }

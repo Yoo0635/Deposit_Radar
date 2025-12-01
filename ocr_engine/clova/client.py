@@ -5,8 +5,8 @@ import cv2
 import json
 #########네이버 클로바 OCR URL 및 KEY 등록 ###########
 # env 인식 오류로 하드코딩
-API_URL = ""
-SECRET_KEY = ""
+API_URL = "https://pd7lmck1u8.apigw.ntruss.com/custom/v1/48252/25c524c75073cdce82e8d317fcc38709ba139e85d44a788bfc8d5886e2813502/general"
+SECRET_KEY = "SWxzYndUVmFUVFN6eFp1U29heG1sSUV2dEVxVnN5a0w="
 
 
 def request_clova_ocr(image_numpy):

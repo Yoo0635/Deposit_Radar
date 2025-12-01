@@ -15,7 +15,7 @@ from backend.app.schema.tenant_risk_schema import TenantRiskProfile
 # ----------------------------------------------
 # ⭐ 시세 하드코딩 (MVP)
 # ----------------------------------------------
-HARD_CODED_MARKET_PRICE = 120_000_000   # 1억 2천
+HARD_CODED_MARKET_PRICE = 2_000_000_000   # 20억원 (고정값)
 
 
 # 스냅샷 ORM -> dict 변환

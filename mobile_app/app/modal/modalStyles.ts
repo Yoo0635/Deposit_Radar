@@ -35,5 +35,26 @@ export const styles = StyleSheet.create({
   },
   buttonText: { color: "white", fontWeight: "bold", fontSize: 16 },
   buttonDisabled: { backgroundColor: Colors.textSecondary },
+  sectionLabel: {
+    ...Typography.body2,
+    fontWeight: "bold",
+    color: Colors.textPrimary,
+    marginTop: Spacing.large,
+    marginBottom: Spacing.small,
+    fontSize: 14,
+  },
+  helpText: {
+    ...Typography.small,
+    color: Colors.textSecondary,
+    fontSize: 12,
+    marginBottom: Spacing.small,
+    fontStyle: "italic",
+  },
+  divider: {
+    width: "100%",
+    height: 1,
+    backgroundColor: Colors.border,
+    marginVertical: Spacing.medium,
+  },
 });
 

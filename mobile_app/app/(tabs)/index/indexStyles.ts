@@ -64,6 +64,7 @@ export const styles = StyleSheet.create({
     elevation: 4,
     padding: Spacing.medium,
   },
+  // 계약 전 카드도 동일한 스타일 사용 (점선/노란색 배경 제거)
   addressCardContent: {
     width: "100%",
   },
@@ -419,6 +420,151 @@ export const styles = StyleSheet.create({
     color: "#008080",
     fontWeight: "700",
     fontSize: 14,
+  },
+  // 계약 상태 배지 및 LTV 행
+  statusBadgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.medium,
+    marginBottom: Spacing.small,
+  },
+  statusBadgeContainer: {
+    // 배지만
+  },
+  statusBadgeCompleted: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#E8F5E9",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    alignSelf: "flex-start",
+  },
+  statusBadgeDraft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#FFF9E6",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    alignSelf: "flex-start",
+  },
+  statusBadgeTextCompleted: {
+    ...Typography.small,
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#4CAF50",
+  },
+  statusBadgeTextDraft: {
+    ...Typography.small,
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#FFC107",
+  },
+  // LTV 텍스트 (배지 옆에 표시)
+  ltvText: {
+    ...Typography.body2,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  ltvTextRed: {
+    color: "#F44336", // RED
+  },
+  ltvTextAmber: {
+    color: "#FFC107", // AMBER
+  },
+  ltvTextGreen: {
+    color: "#4CAF50", // GREEN
+  },
+  // 안내 메시지
+  infoBox: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: Spacing.tiny,
+    backgroundColor: "#FFF9E6",
+    padding: Spacing.small,
+    borderRadius: 8,
+    marginTop: Spacing.small,
+  },
+  infoBoxText: {
+    ...Typography.small,
+    fontSize: 12,
+    color: Colors.textPrimary,
+    flex: 1,
+    lineHeight: 16,
+  },
+  // 날짜 값 스타일
+  dateValueMissing: {
+    color: Colors.textSecondary,
+    fontStyle: "italic",
+  },
+  // 계약 정보 완성 버튼
+  completeButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.small,
+    backgroundColor: "#008080",
+    padding: Spacing.medium,
+    borderRadius: 12,
+    marginTop: Spacing.small,
+  },
+  completeButtonText: {
+    ...Typography.body1,
+    color: "white",
+    fontWeight: "700",
+    fontSize: 15,
+  },
+  // 계약 정보 완성 폼
+  completeFormContainer: {
+    marginTop: Spacing.small,
+  },
+  completeFormLabel: {
+    ...Typography.body2,
+    fontSize: 14,
+    fontWeight: "600",
+    color: Colors.textPrimary,
+    marginBottom: Spacing.tiny,
+    marginTop: Spacing.small,
+  },
+  completeFormInput: {
+    ...Typography.body1,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 8,
+    padding: Spacing.small,
+    marginBottom: Spacing.small,
+    backgroundColor: Colors.background,
+    fontSize: 15,
+  },
+  completeFormButtons: {
+    flexDirection: "row",
+    gap: Spacing.small,
+    marginTop: Spacing.medium,
+  },
+  completeFormButton: {
+    flex: 1,
+    padding: Spacing.medium,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  completeFormButtonCancel: {
+    backgroundColor: Colors.border,
+  },
+  completeFormButtonSave: {
+    backgroundColor: "#008080",
+  },
+  completeFormButtonTextCancel: {
+    ...Typography.body1,
+    color: Colors.textPrimary,
+    fontWeight: "600",
+  },
+  completeFormButtonTextSave: {
+    ...Typography.body1,
+    color: "white",
+    fontWeight: "700",
   },
   // 모달 스타일
   modalOverlay: {
