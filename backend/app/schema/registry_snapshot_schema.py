@@ -1,34 +1,19 @@
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Any, List, Dict
+from datetime import date, datetime
 
-class Receipt(BaseModel):
-    receipt_date: str
-    receipt_no: str
-
-class RegistryEntry(BaseModel):
-    rank: int
-    purpose: str
-    receipt: Optional[Receipt] = None
-    owner_name: Optional[str] = None
-    max_claim_amount: Optional[int] = None
-    status: Optional[str] = None
-
-
-class RegistrySnapshot(BaseModel):
-    viewed_at: str
-    gabu: List[RegistryEntry]
-    eulgu: List[RegistryEntry]
-
-# 🔥 추가해야 하는 부분 (route에서 import하던 바로 그거)
 class RegistrySnapshotCreate(BaseModel):
     contract_id: int
-    viewed_at: str
-    gabu: List[RegistryEntry]
-    eulgu: List[RegistryEntry]
+    viewed_at: date
+    gabu: List[Dict[str, Any]]
+    eulgu: List[Dict[str, Any]]
 
-class RegistrySnapshotResponse(BaseModel):
+class RegistrySnapshotResponse(RegistrySnapshotCreate):
     id: int
-    contract_id: int
-    viewed_at: str
-    gabu: List[RegistryEntry]
-    eulgu: List[RegistryEntry]
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }

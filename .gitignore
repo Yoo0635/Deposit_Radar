@@ -8,6 +8,7 @@ venv/
 .mypy_cache/
 .pytest_cache/
 *.log
+.python-version
 
 # Virtualenv
 env/
@@ -42,11 +43,3 @@ android/build/
 .vscode/
 .VSCode/
 
-
-# --- [User Added] 백엔드 결과물 및 윈도우 파일 -----노진산추가
-# 테스트로 생성된 PDF 파일들 (중요!)
-*.pdf
-result.pdf
-
-# 윈도우 탐색기 썸네일 파일
-Thumbs.db
