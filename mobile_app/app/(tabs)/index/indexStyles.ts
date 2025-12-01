@@ -1,0 +1,621 @@
+// app/(tabs)/index/indexStyles.ts
+// 대시보드 화면 스타일 정의
+
+import { StyleSheet } from "react-native";
+import {
+  Colors,
+  Spacing,
+  Typography,
+  globalStyles,
+} from "../../../constants/styles";
+
+export const styles = StyleSheet.create({
+  scrollContent: {
+    padding: Spacing.medium,
+    paddingTop: Spacing.small,
+    paddingBottom: Spacing.xLarge + 25, // 하단 탭바 여백 확보
+  },
+  sectionHeader: {
+    marginBottom: Spacing.large,
+  },
+  sectionTitleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: Spacing.small,
+  },
+  sectionTitle: {
+    ...Typography.h2,
+    fontSize: 20,
+    fontWeight: "700",
+    color: Colors.textPrimary,
+  },
+  addButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#B2E5E5",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+  },
+  addButtonText: {
+    color: "#008080",
+    fontWeight: "600",
+    marginLeft: 4,
+    fontSize: 14,
+  },
+  subHeaderText: {
+    ...Typography.body2,
+    fontSize: 14,
+    color: Colors.textSecondary,
+    lineHeight: 20,
+  },
+  propertyCardWrapper: {
+    marginBottom: Spacing.large,
+    gap: Spacing.medium,
+  },
+  addressCard: {
+    backgroundColor: Colors.cardBackground,
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    padding: Spacing.medium,
+  },
+  // 계약 전 카드도 동일한 스타일 사용 (점선/노란색 배경 제거)
+  addressCardContent: {
+    width: "100%",
+  },
+  addressCardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: Spacing.small,
+  },
+  addressTitleContainer: {
+    flex: 1,
+  },
+  addressCardTitle: {
+    ...Typography.h2,
+    fontSize: 22,
+    fontWeight: "700",
+    color: Colors.textPrimary,
+  },
+  addressCardTitlePlaceholder: {
+    ...Typography.h2,
+    fontSize: 22,
+    fontWeight: "400",
+    color: Colors.textSecondary,
+    opacity: 0.6,
+  },
+  addressLocationText: {
+    ...Typography.body2,
+    fontSize: 14,
+    color: Colors.textSecondary,
+  },
+  addressDetailRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: Spacing.small,
+    marginTop: Spacing.small,
+    marginBottom: Spacing.small,
+  },
+  addressDetailTextContainer: {
+    flex: 1,
+  },
+  addressDetailLabel: {
+    ...Typography.body2,
+    fontSize: 13,
+    color: Colors.textSecondary,
+    marginBottom: 4,
+  },
+  addressDetailValue: {
+    ...Typography.body1,
+    fontSize: 15,
+    color: Colors.textPrimary,
+    fontWeight: "500",
+  },
+  infoCard: {
+    backgroundColor: Colors.cardBackground,
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    padding: Spacing.medium,
+  },
+  depositRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: Spacing.small,
+    marginBottom: Spacing.medium,
+  },
+  sectionDivider: {
+    width: "100%",
+    height: 1,
+    backgroundColor: Colors.border,
+    marginVertical: Spacing.medium,
+  },
+  depositTextContainer: {
+    flex: 1,
+  },
+  depositLabel: {
+    ...Typography.body2,
+    fontSize: 13,
+    color: Colors.textSecondary,
+    marginBottom: 4,
+  },
+  depositValue: {
+    ...Typography.h2,
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#008080",
+  },
+  dateRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  dateColumn: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: Spacing.small,
+  },
+  dateDivider: {
+    width: 1,
+    backgroundColor: Colors.border,
+    marginHorizontal: Spacing.medium,
+    alignSelf: "stretch",
+  },
+  dateTextContainer: {
+    flex: 1,
+  },
+  dateLabel: {
+    ...Typography.body2,
+    fontSize: 13,
+    color: Colors.textSecondary,
+    marginBottom: 4,
+  },
+  dateValue: {
+    ...Typography.body1,
+    fontSize: 15,
+    color: Colors.textPrimary,
+    fontWeight: "500",
+  },
+  propertyCard: {
+    ...globalStyles.card,
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+    borderLeftWidth: 4,
+    borderLeftColor: "#008080",
+    padding: Spacing.large,
+  },
+  cardContent: {
+    width: "100%",
+  },
+  cardMainInfo: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: Spacing.small,
+  },
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  alertBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.warning + "20",
+    borderRadius: 5,
+    padding: Spacing.small,
+    marginTop: Spacing.small,
+  },
+  alertBoxRed: { backgroundColor: Colors.danger + "20" },
+  alertText: { ...Typography.body2, color: Colors.textPrimary, flex: 1 },
+  emptyStateContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: Spacing.xLarge * 3,
+    paddingHorizontal: Spacing.large,
+  },
+  emptyIconContainer: {
+    width: 120,
+    height: 120,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: Colors.textSecondary + "30",
+    borderRadius: 60,
+    borderStyle: "dashed",
+  },
+  emptyStateText: {
+    ...Typography.h3,
+    fontSize: 18,
+    fontWeight: "600",
+    marginTop: Spacing.xLarge,
+    color: Colors.textPrimary,
+    textAlign: "center",
+  },
+  emptyStateSubText: {
+    ...Typography.body2,
+    fontSize: 14,
+    marginTop: Spacing.medium,
+    textAlign: "center",
+    color: Colors.textSecondary,
+    lineHeight: 20,
+    paddingHorizontal: Spacing.medium,
+  },
+  nicknameRow: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: Spacing.small,
+    marginRight: Spacing.medium,
+  },
+  nameContainer: {
+    flex: 1,
+  },
+  nicknameContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
+  },
+  homeIcon: {
+    marginTop: 2,
+  },
+  nicknameText: {
+    ...Typography.h3,
+    fontSize: 20,
+    fontWeight: "700",
+    color: Colors.textPrimary,
+    marginBottom: 4,
+    letterSpacing: -0.3,
+  },
+  addressText: {
+    ...Typography.body2,
+    fontSize: 14,
+    color: Colors.textSecondary,
+    lineHeight: 20,
+  },
+  headerButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
+  },
+  editButton: {
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: "#E0F7F7",
+    marginTop: 2,
+  },
+  deleteButton: {
+    padding: 8,
+    borderRadius: 12,
+    backgroundColor: "#FFEBEE",
+    marginTop: 2,
+  },
+  cardFooter: {
+    alignItems: "flex-end",
+    marginTop: Spacing.small,
+  },
+  expandButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#E0F7F7",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+  },
+  expandButtonText: {
+    ...Typography.body2,
+    color: "#008080",
+    fontWeight: "700",
+    fontSize: 14,
+  },
+  // 아코디언 상세 정보 스타일
+  detailContainer: {
+    backgroundColor: Colors.background,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    overflow: "hidden",
+    marginTop: -Spacing.medium,
+    paddingTop: Spacing.medium,
+  },
+  detailContent: {
+    paddingHorizontal: Spacing.large,
+    paddingBottom: Spacing.large,
+  },
+  detailSection: {
+    gap: Spacing.medium,
+  },
+  detailItem: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: Colors.cardBackground,
+    padding: Spacing.medium,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  detailIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#F0F9F9",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: Spacing.medium,
+  },
+  detailTextContainer: {
+    flex: 1,
+  },
+  accordionDetailLabel: {
+    ...Typography.small,
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginBottom: 4,
+    fontWeight: "600",
+  },
+  accordionDetailValue: {
+    ...Typography.body1,
+    fontSize: 15,
+    color: Colors.textPrimary,
+    fontWeight: "600",
+  },
+  nicknameEditContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
+    flex: 1,
+    paddingVertical: Spacing.tiny,
+  },
+  nicknameInput: {
+    ...Typography.h3,
+    fontSize: 18,
+    fontWeight: "700",
+    color: Colors.textPrimary,
+    borderBottomWidth: 2,
+    borderBottomColor: "#008080",
+    flex: 1,
+    paddingVertical: Spacing.tiny,
+    paddingHorizontal: Spacing.tiny,
+  },
+  editActionButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.small,
+  },
+  saveButton: {
+    padding: Spacing.tiny,
+  },
+  cancelEditButton: {
+    padding: Spacing.tiny,
+  },
+  moreButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#E0F7F7",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    alignSelf: "flex-end",
+    marginTop: Spacing.tiny,
+  },
+  moreButtonText: {
+    ...Typography.body2,
+    color: "#008080",
+    fontWeight: "700",
+    fontSize: 14,
+  },
+  // 계약 상태 배지 및 LTV 행
+  statusBadgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.medium,
+    marginBottom: Spacing.small,
+  },
+  statusBadgeContainer: {
+    // 배지만
+  },
+  statusBadgeCompleted: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#E8F5E9",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    alignSelf: "flex-start",
+  },
+  statusBadgeDraft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#FFF9E6",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    alignSelf: "flex-start",
+  },
+  statusBadgeTextCompleted: {
+    ...Typography.small,
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#4CAF50",
+  },
+  statusBadgeTextDraft: {
+    ...Typography.small,
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#FFC107",
+  },
+  // LTV 텍스트 (배지 옆에 표시)
+  ltvText: {
+    ...Typography.body2,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  ltvTextRed: {
+    color: "#F44336", // RED
+  },
+  ltvTextAmber: {
+    color: "#FFC107", // AMBER
+  },
+  ltvTextGreen: {
+    color: "#4CAF50", // GREEN
+  },
+  // 안내 메시지
+  infoBox: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: Spacing.tiny,
+    backgroundColor: "#FFF9E6",
+    padding: Spacing.small,
+    borderRadius: 8,
+    marginTop: Spacing.small,
+  },
+  infoBoxText: {
+    ...Typography.small,
+    fontSize: 12,
+    color: Colors.textPrimary,
+    flex: 1,
+    lineHeight: 16,
+  },
+  // 날짜 값 스타일
+  dateValueMissing: {
+    color: Colors.textSecondary,
+    fontStyle: "italic",
+  },
+  // 계약 정보 완성 버튼
+  completeButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.small,
+    backgroundColor: "#008080",
+    padding: Spacing.medium,
+    borderRadius: 12,
+    marginTop: Spacing.small,
+  },
+  completeButtonText: {
+    ...Typography.body1,
+    color: "white",
+    fontWeight: "700",
+    fontSize: 15,
+  },
+  // 계약 정보 완성 폼
+  completeFormContainer: {
+    marginTop: Spacing.small,
+  },
+  completeFormLabel: {
+    ...Typography.body2,
+    fontSize: 14,
+    fontWeight: "600",
+    color: Colors.textPrimary,
+    marginBottom: Spacing.tiny,
+    marginTop: Spacing.small,
+  },
+  completeFormInput: {
+    ...Typography.body1,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 8,
+    padding: Spacing.small,
+    marginBottom: Spacing.small,
+    backgroundColor: Colors.background,
+    fontSize: 15,
+  },
+  completeFormButtons: {
+    flexDirection: "row",
+    gap: Spacing.small,
+    marginTop: Spacing.medium,
+  },
+  completeFormButton: {
+    flex: 1,
+    padding: Spacing.medium,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  completeFormButtonCancel: {
+    backgroundColor: Colors.border,
+  },
+  completeFormButtonSave: {
+    backgroundColor: "#008080",
+  },
+  completeFormButtonTextCancel: {
+    ...Typography.body1,
+    color: Colors.textPrimary,
+    fontWeight: "600",
+  },
+  completeFormButtonTextSave: {
+    ...Typography.body1,
+    color: "white",
+    fontWeight: "700",
+  },
+  // 모달 스타일
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: "80%",
+    padding: Spacing.large,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: Spacing.large,
+    paddingBottom: Spacing.medium,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  modalTitle: {
+    ...Typography.h2,
+    fontSize: 22,
+    fontWeight: "700",
+    color: Colors.textPrimary,
+  },
+  closeButton: {
+    padding: Spacing.small,
+  },
+  modalBody: {
+    maxHeight: 400,
+  },
+  detailRow: {
+    flexDirection: "row",
+    marginBottom: Spacing.medium,
+    paddingBottom: Spacing.medium,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  detailLabel: {
+    ...Typography.body1,
+    fontWeight: "600",
+    width: 100,
+    color: Colors.textSecondary,
+  },
+  detailValue: {
+    ...Typography.body1,
+    flex: 1,
+    color: Colors.textPrimary,
+  },
+});
