@@ -18,11 +18,30 @@ export const styles = StyleSheet.create({
   },
   previewImage: {
     width: "100%",
-    height: 300,
+    height: "100%",
+    resizeMode: "cover",
+  },
+  imagePreviewContainer: {
+    flexDirection: "row",
+    gap: Spacing.small,
+    flexWrap: "wrap",
+  },
+  imagePreviewItem: {
+    position: "relative",
+    width: "48%",
+    aspectRatio: 3 / 4,
     borderRadius: 8,
-    marginBottom: Spacing.medium,
-    resizeMode: "contain",
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: Colors.border,
     backgroundColor: Colors.background,
+  },
+  removeImageButton: {
+    position: "absolute",
+    top: 4,
+    right: 4,
+    backgroundColor: Colors.cardBackground,
+    borderRadius: 12,
   },
   removeButton: {
     flexDirection: "row",
@@ -50,6 +69,9 @@ export const styles = StyleSheet.create({
     color: "#008080",
     marginLeft: Spacing.medium,
     fontWeight: "bold",
+  },
+  uploadButtonDisabled: {
+    opacity: 0.5,
   },
   submitButton: {
     backgroundColor: "#008080",
@@ -133,6 +155,28 @@ export const styles = StyleSheet.create({
     color: "white",
     fontWeight: "700",
     marginLeft: Spacing.small,
+  },
+  pdfPreviewContainer: {
+    width: "100%",
+    minHeight: 200,
+    borderRadius: 8,
+    marginBottom: Spacing.medium,
+    backgroundColor: Colors.background,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: Spacing.large,
+  },
+  pdfFileName: {
+    ...Typography.body1,
+    fontWeight: "600",
+    color: Colors.textPrimary,
+    marginTop: Spacing.medium,
+    textAlign: "center",
+  },
+  pdfFileSize: {
+    ...Typography.body2,
+    color: Colors.textSecondary,
+    marginTop: Spacing.small,
   },
 });
 

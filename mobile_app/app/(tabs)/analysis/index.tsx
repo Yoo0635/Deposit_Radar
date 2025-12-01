@@ -16,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import RiskBadge from "../../../components/riskBadge";
 import { Colors, globalStyles } from "../../../constants/styles";
 import { useNotification } from "../../../contexts/NotificationContext";
+import { useProperties } from "../../../contexts/PropertyContext";
 import { styles } from "./analysisStyles";
 
 export default function AnalysisScreen() {
@@ -27,6 +28,7 @@ export default function AnalysisScreen() {
     string | null
   >(null);
   const { pendingNotification, clearPendingNotification } = useNotification();
+  const { properties } = useProperties();
 
   // 알림 데이터가 있으면 자동으로 분석 모달 표시
   useEffect(() => {
@@ -96,22 +98,39 @@ export default function AnalysisScreen() {
           {
             text: "확인",
             onPress: async () => {
-              // 백엔드에서 PDF URL 받아오기 (실제로는 API 호출)
-              // TODO: 실제 백엔드 API 엔드포인트로 변경
-              const mockPdfUrl =
-                "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+              // PropertyContext에서 등록한 주택 주소 가져오기 (가장 최근 등록한 주택)
+              const registeredAddress =
+                properties.length > 0
+                  ? properties[properties.length - 1].address
+                  : notificationData.address;
+
+              // TODO: 백엔드 API 호출 (백엔드 연동 시 주석 해제)
+              // const response = await fetch('/api/analyze', {
+              //   method: 'POST',
+              //   headers: { 'Content-Type': 'application/json' },
+              //   body: JSON.stringify({ property_id: ... }),
+              // });
+              // const backendResponse = await response.json();
+              // 백엔드 응답 구조: { status: "success", risk_grade: "RED", download_url: "http://127.0.0.1:8000/static/report_..." }
+
+              // 임시 값 (백엔드 연동 전까지 사용)
+              const riskGrade = "RED"; // 백엔드 연동 시: backendResponse.risk_grade
+              const pdfUrl =
+                "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"; // 백엔드 연동 시: backendResponse.download_url
 
               // 분석 기록에 추가 (PDF 생성 후에만 기록으로 추가)
               const newAnalysis = {
                 ...notificationData,
+                address: registeredAddress, // 등록한 주택 주소 사용
                 analysisDate: new Date().toISOString(),
-                pdfUrl: mockPdfUrl,
+                pdfUrl: pdfUrl,
+                riskLevel: riskGrade, // 백엔드 연동 시: backendResponse.risk_grade
               };
 
               setAnalysisHistory([newAnalysis, ...analysisHistory]);
 
               // PDF 미리보기 표시
-              setPdfUrl(mockPdfUrl);
+              setPdfUrl(pdfUrl);
               setShowPdfPreview(true);
             },
           },

@@ -7,7 +7,7 @@ import * as Notifications from "expo-notifications";
 /**
  * Headless JS 태스크 - 백그라운드에서 알림을 감지하고 처리
  * 이 함수는 앱이 백그라운드나 종료 상태에서도 실행됩니다.
- *
+ * 
  * @param notification - 알림 데이터 (JSON 문자열 또는 객체)
  */
 export const headlessNotificationListener = async ({ notification }: any) => {
@@ -66,14 +66,22 @@ export const headlessNotificationListener = async ({ notification }: any) => {
         requestDate: notificationData.request_date || new Date().toISOString(),
       };
 
-      await AsyncStorage.setItem(
-        "pendingNotification",
-        JSON.stringify(dataToSave)
+      // 알림 ID 기반 중복 체크 (같은 알림이 이미 처리되었는지 확인)
+      const notificationId = dataToSave.id;
+      const processedNotificationId = await AsyncStorage.getItem(
+        "lastProcessedNotificationId"
       );
 
-      console.log("알림 데이터 저장 완료 (Headless JS)");
+      // 이미 처리된 알림이면 스킵
+      if (processedNotificationId === notificationId) {
+        console.log(
+          "중복 알림 감지 (Headless JS) - 이미 처리된 알림 ID:",
+          notificationId
+        );
+        return Promise.resolve();
+      }
 
-      // 무한 알림 방지: 마지막 처리 시간 확인 (5초 쿨다운만 체크)
+      // 무한 알림 방지: 마지막 처리 시간 확인 (5초 쿨다운)
       try {
         const now = Date.now();
         const lastProcessTimeStr = await AsyncStorage.getItem(
@@ -87,13 +95,25 @@ export const headlessNotificationListener = async ({ notification }: any) => {
 
         // 쿨다운 시간이 지났으면 새로운 알림으로 인식하고 표시
         if (timeSinceLastProcess >= PROCESS_COOLDOWN) {
-          // 마지막 처리 시간 저장
+          // 마지막 처리 시간과 알림 ID 저장
           await AsyncStorage.setItem(
             "lastNotificationProcessTime",
             now.toString()
           );
+          await AsyncStorage.setItem(
+            "lastProcessedNotificationId",
+            notificationId
+          );
 
-          // 알림 표시 (각각의 새로운 알림마다 하나씩!)
+          // 알림 데이터 저장
+          await AsyncStorage.setItem(
+            "pendingNotification",
+            JSON.stringify(dataToSave)
+          );
+
+          console.log("알림 데이터 저장 완료 (Headless JS)");
+
+          // 알림 표시 (하나만!)
           await Notifications.scheduleNotificationAsync({
             content: {
               title: "등기부등본 변경 알림",
@@ -102,7 +122,7 @@ export const headlessNotificationListener = async ({ notification }: any) => {
             },
             trigger: null, // 즉시 표시
           });
-          console.log("등기부등본 변경 알림 표시 (Headless JS - 새로운 알림)");
+          console.log("등기부등본 변경 알림 표시 (Headless JS - 1개만)");
         } else {
           console.log(
             `중복 알림 감지 (Headless JS) - 스킵 (마지막 처리로부터 ${Math.floor(

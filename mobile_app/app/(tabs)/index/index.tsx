@@ -55,8 +55,16 @@ export default function MainDashboardScreen() {
     setNicknameInput(property.nickname || property.address);
   };
 
-  const handleSaveNickname = (propertyId: number) => {
+  const handleSaveNickname = async (propertyId: number) => {
     if (nicknameInput.trim()) {
+      // TODO: 백엔드 API로 닉네임 업데이트
+      // import { updatePropertyNickname } from '../../../api/registry';
+      // const token = await getAuthToken();
+      // await updatePropertyNickname(propertyId, {
+      //   nickname: nicknameInput.trim(),
+      // }, token);
+
+      // 로컬 상태 업데이트
       updateProperty(propertyId, { nickname: nicknameInput.trim() });
     }
     setEditingProperty(null);
@@ -145,16 +153,16 @@ export default function MainDashboardScreen() {
                     }
                   >
                     {hasNickname ? property.nickname : "닉네임이 없습니다"}
-                  </Text>
+                      </Text>
                 </View>
                 <View style={styles.headerButtons}>
-                  <TouchableOpacity
+                <TouchableOpacity
                     onPress={() => handleEditNickname(property)}
-                    style={styles.editButton}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  >
-                    <Ionicons name="pencil" size={16} color="#008080" />
-                  </TouchableOpacity>
+                  style={styles.editButton}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  <Ionicons name="pencil" size={16} color="#008080" />
+                </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => handleDeleteProperty(property)}
                     style={styles.deleteButton}
@@ -173,19 +181,19 @@ export default function MainDashboardScreen() {
                   </Text>
                 </View>
               </View>
-              <TouchableOpacity
+                <TouchableOpacity
                 onPress={() => handleToggleExpand(property.id)}
                 style={styles.moreButton}
-              >
+                >
                 <Text style={styles.moreButtonText}>
-                  {isExpanded ? "접기" : "더보기"}
-                </Text>
-                <Ionicons
-                  name={isExpanded ? "chevron-up" : "chevron-down"}
-                  size={20}
-                  color="#008080"
-                />
-              </TouchableOpacity>
+                    {isExpanded ? "접기" : "더보기"}
+                  </Text>
+                  <Ionicons
+                    name={isExpanded ? "chevron-up" : "chevron-down"}
+                    size={20}
+                    color="#008080"
+                  />
+                </TouchableOpacity>
             </View>
           )}
         </View>
@@ -198,10 +206,10 @@ export default function MainDashboardScreen() {
               <View style={styles.depositTextContainer}>
                 <Text style={styles.depositLabel}>보증금</Text>
                 <Text style={styles.depositValue}>
-                  {property.deposit?.toLocaleString() || "-"}원
-                </Text>
-              </View>
-            </View>
+                      {property.deposit?.toLocaleString() || "-"}원
+                    </Text>
+                  </View>
+                </View>
             <View style={styles.sectionDivider} />
             <View style={styles.dateRow}>
               <View style={styles.dateColumn}>
@@ -209,22 +217,22 @@ export default function MainDashboardScreen() {
                 <View style={styles.dateTextContainer}>
                   <Text style={styles.dateLabel}>전입일</Text>
                   <Text style={styles.dateValue}>
-                    {property.move_in_date || "-"}
-                  </Text>
+                      {property.move_in_date || "-"}
+                    </Text>
+                  </View>
                 </View>
-              </View>
               <View style={styles.dateDivider} />
               <View style={styles.dateColumn}>
                 <Ionicons name="checkmark-circle" size={20} color="#008080" />
                 <View style={styles.dateTextContainer}>
                   <Text style={styles.dateLabel}>확정일자</Text>
                   <Text style={styles.dateValue}>
-                    {property.confirmation_date || "-"}
-                  </Text>
+                      {property.confirmation_date || "-"}
+                    </Text>
+                  </View>
                 </View>
               </View>
             </View>
-          </View>
         )}
       </View>
     );
